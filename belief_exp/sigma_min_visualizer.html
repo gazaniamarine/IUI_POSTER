@@ -1,0 +1,1099 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sigma-Min Sweep Visualizer</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1:      #fcfcfb;
+    --surface-2:      #f9f9f7;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --gridline:       #e1e0d9;
+    --axis:           #c3c2b7;
+    --border:         rgba(11,11,11,0.10);
+    --series-1:       #2a78d6;
+    --series-2:       #eb6834;
+    --status-good:    #0ca30c;
+    --status-critical:#d03b3b;
+    --success-text:   #006300;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --surface-1:      #1a1a19;
+      --surface-2:      #0d0d0d;
+      --text-primary:   #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted:     #898781;
+      --gridline:       #2c2c2a;
+      --axis:           #383835;
+      --border:         rgba(255,255,255,0.10);
+      --series-1:       #3987e5;
+      --series-2:       #d95926;
+      --status-good:    #0ca30c;
+      --status-critical:#e66767;
+      --success-text:   #0ca30c;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface-1:      #1a1a19;
+    --surface-2:      #0d0d0d;
+    --text-primary:   #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted:     #898781;
+    --gridline:       #2c2c2a;
+    --axis:           #383835;
+    --border:         rgba(255,255,255,0.10);
+    --series-1:       #3987e5;
+    --series-2:       #d95926;
+    --status-good:    #0ca30c;
+    --status-critical:#e66767;
+    --success-text:   #0ca30c;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--surface-2);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .viz-root { max-width: 1180px; margin: 0 auto; padding: 24px 20px 64px; }
+
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .subtitle { color: var(--text-secondary); font-size: 13px; margin: 0 0 20px; }
+
+  .toolbar {
+    display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px;
+  }
+  .dropzone {
+    flex: 1 1 260px; min-width: 240px;
+    background: var(--surface-1); border: 1px dashed var(--axis); border-radius: 10px;
+    padding: 12px 14px; display: flex; flex-direction: column; gap: 6px;
+    transition: border-color .15s, background .15s;
+  }
+  .dropzone.drag { border-color: var(--series-1); background: var(--surface-2); }
+  .dropzone .dz-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .04em; }
+  .dropzone .dz-file { font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; word-break: break-all; }
+  .dropzone .dz-hint { font-size: 11px; color: var(--text-muted); }
+  .dz-row { display: flex; align-items: center; gap: 8px; }
+  .btn {
+    appearance: none; border: 1px solid var(--border); background: var(--surface-2);
+    color: var(--text-primary); border-radius: 7px; padding: 6px 12px; font-size: 12.5px;
+    cursor: pointer; font-family: inherit;
+  }
+  .btn:hover { border-color: var(--axis); }
+  .btn.primary { background: var(--series-1); border-color: var(--series-1); color: #fff; }
+  input[type="file"] { display: none; }
+
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--gridline); margin-bottom: 20px; }
+  .tab-btn {
+    appearance: none; border: none; background: transparent; color: var(--text-secondary);
+    font-family: inherit; font-size: 13.5px; padding: 9px 14px; cursor: pointer;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+  }
+  .tab-btn.active { color: var(--text-primary); border-bottom-color: var(--series-1); font-weight: 600; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .stat-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+  .stat-tile {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 16px; min-width: 150px; flex: 1 1 150px;
+  }
+  .stat-tile .st-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
+  .stat-tile .st-value { font-size: 19px; font-variant-numeric: tabular-nums; }
+  .stat-tile .st-sub { font-size: 11.5px; color: var(--text-secondary); margin-top: 2px; }
+
+  .empty-state {
+    background: var(--surface-1); border: 1px dashed var(--gridline); border-radius: 10px;
+    padding: 32px 20px; text-align: center; color: var(--text-secondary); font-size: 13px;
+  }
+
+  .section-title { font-size: 14px; font-weight: 600; margin: 4px 0 10px; }
+  .section-hint { font-size: 12px; color: var(--text-muted); margin: -6px 0 12px; }
+
+  .mini-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px; margin-bottom: 26px;
+  }
+  .mini-card {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 12px 6px; cursor: pointer; text-align: left; font-family: inherit;
+  }
+  .mini-card:hover, .mini-card:focus-visible { border-color: var(--series-1); }
+  .mini-card.active { border-color: var(--series-1); box-shadow: 0 0 0 1px var(--series-1) inset; }
+  .mini-card .mc-title { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+  .mini-card .mc-sub { font-size: 10.5px; color: var(--text-muted); margin-top: 2px; }
+
+  .card {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 18px; margin-bottom: 20px;
+  }
+  .card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+  .card-head h2 { font-size: 15px; margin: 0; }
+  .legend { display: flex; gap: 14px; font-size: 12px; color: var(--text-secondary); flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-swatch { width: 14px; height: 2px; border-radius: 1px; display: inline-block; }
+  .legend-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+
+  .chart-scroll { overflow-x: auto; }
+  svg.chart { display: block; }
+  .axis-label { font-size: 10.5px; fill: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .axis-title { font-size: 11px; fill: var(--text-secondary); }
+  .gridline { stroke: var(--gridline); stroke-width: 1; }
+  .axisline { stroke: var(--axis); stroke-width: 1; }
+
+  .tooltip {
+    position: absolute; pointer-events: none; z-index: 20;
+    background: var(--text-primary); color: var(--surface-1);
+    font-size: 11.5px; line-height: 1.5; border-radius: 8px; padding: 8px 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25); max-width: 240px; opacity: 0; transform: translateY(2px);
+    transition: opacity .08s, transform .08s;
+  }
+  .tooltip.show { opacity: 1; transform: translateY(0); }
+  .tooltip .tt-title { font-weight: 700; margin-bottom: 3px; }
+  .tooltip .tt-row { display: flex; justify-content: space-between; gap: 10px; }
+  .tooltip .tt-row .k { opacity: .75; }
+  .tooltip .tt-row .v { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .tooltip .tt-status { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; }
+
+  .chart-wrap { position: relative; }
+
+  table.data-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 4px; }
+  table.data-table th, table.data-table td {
+    text-align: right; padding: 6px 9px; border-bottom: 1px solid var(--gridline);
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  table.data-table th:first-child, table.data-table td:first-child { text-align: left; }
+  table.data-table th {
+    color: var(--text-muted); font-weight: 600; cursor: pointer; user-select: none;
+    position: sticky; top: 0; background: var(--surface-1); font-size: 10.5px; text-transform: uppercase; letter-spacing: .03em;
+  }
+  table.data-table th.sorted::after { content: attr(data-arrow); margin-left: 3px; }
+  table.data-table tbody tr:hover { background: var(--surface-2); }
+  .table-scroll { max-height: 360px; overflow: auto; border: 1px solid var(--gridline); border-radius: 8px; }
+
+  .pill { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; font-size: 11.5px; }
+  .pill .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  .controls-row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+  .control { display: flex; flex-direction: column; gap: 4px; font-size: 11.5px; color: var(--text-secondary); }
+  .control select {
+    font-family: inherit; font-size: 12.5px; padding: 5px 8px; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--surface-2); color: var(--text-primary);
+  }
+  .toggle-link { font-size: 12px; color: var(--series-1); background: none; border: none; cursor: pointer; font-family: inherit; padding: 0; text-decoration: underline; }
+
+  .frontier-note { font-size: 12px; color: var(--text-secondary); margin-top: 8px; }
+  .toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: var(--text-primary); color: var(--surface-1); padding: 8px 16px;
+    border-radius: 8px; font-size: 12.5px; opacity: 0; pointer-events: none; transition: opacity .2s;
+    z-index: 50;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="viz-root">
+  <h1>Sigma-Min Sweep Visualizer</h1>
+  <p class="subtitle">Explore output from <code>belief_exp/sigma_min_sweep.py</code> — minimum viable (sigma_visible, odom_noise) pairs per swept parameter, and the full sigma×odom viability grid.</p>
+
+  <div class="toolbar">
+    <div class="dropzone" id="dz-summary">
+      <div class="dz-title">Summary CSV</div>
+      <div class="dz-row">
+        <button class="btn" id="btn-summary">Choose file…</button>
+        <input type="file" id="file-summary" accept=".csv" />
+      </div>
+      <div class="dz-file" id="dz-summary-file">No file loaded</div>
+      <div class="dz-hint">sigma_min_summary_*.csv — drag & drop or click. One row per swept config-point.</div>
+    </div>
+    <div class="dropzone" id="dz-details">
+      <div class="dz-title">Details CSV</div>
+      <div class="dz-row">
+        <button class="btn" id="btn-details">Choose file…</button>
+        <input type="file" id="file-details" accept=".csv" />
+      </div>
+      <div class="dz-file" id="dz-details-file">No file loaded</div>
+      <div class="dz-hint">sigma_min_details_*.csv — optional, unlocks the sigma×odom grid view.</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="overview">Overview &amp; Sweeps</button>
+    <button class="tab-btn" data-tab="grid">Sigma × Odom Grid</button>
+  </div>
+
+  <div class="tab-panel active" id="panel-overview">
+    <div id="overview-empty" class="empty-state">Load a <strong>summary</strong> CSV above to see minimum-viable-sigma curves per swept parameter.</div>
+    <div id="overview-content" style="display:none;"></div>
+  </div>
+
+  <div class="tab-panel" id="panel-grid">
+    <div id="grid-empty" class="empty-state">Load a <strong>details</strong> CSV above to explore the sigma_visible × odom_noise viability grid for any config-point.</div>
+    <div id="grid-content" style="display:none;"></div>
+  </div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  const SVGNS = "http://www.w3.org/2000/svg";
+  const SEQ_RAMP = ["#cde2fb","#b7d3f6","#9ec5f4","#86b6ef","#6da7ec","#5598e7","#3987e5","#2a78d6","#256abf","#1c5cab","#184f95","#104281","#0d366b"];
+
+  const state = {
+    summaryRows: [], summaryCols: {}, summaryOrder: [],
+    detailRows: [], detailCols: {}, detailOrder: [],
+    selectedParam: null,
+    selectedConfigKey: null,
+    gridColorMode: "viable",
+  };
+
+  const css = getComputedStyle(document.documentElement);
+  function cssVar(name) {
+    const probe = document.querySelector(".viz-root");
+    return getComputedStyle(probe).getPropertyValue(name).trim();
+  }
+
+  function parseCSVLine(line) {
+    const out = [];
+    let cur = "", inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (inQuotes) {
+        if (ch === '"') {
+          if (line[i + 1] === '"') { cur += '"'; i++; } else { inQuotes = false; }
+        } else cur += ch;
+      } else {
+        if (ch === '"') inQuotes = true;
+        else if (ch === ',') { out.push(cur); cur = ""; }
+        else cur += ch;
+      }
+    }
+    out.push(cur);
+    return out;
+  }
+
+  function classifyColumn(values) {
+    let allBool = true, allNum = true, any = false;
+    for (const v of values) {
+      if (v === "") continue;
+      any = true;
+      if (v !== "True" && v !== "False") allBool = false;
+      const lower = v.toLowerCase();
+      if (lower !== "nan" && Number.isNaN(Number(v))) allNum = false;
+    }
+    if (!any) return "str";
+    if (allBool) return "bool";
+    if (allNum) return "num";
+    return "str";
+  }
+
+  function parseValue(v, type) {
+    if (v === "" || v === undefined) return null;
+    if (type === "bool") return v === "True";
+    if (type === "num") return v.toLowerCase() === "nan" ? NaN : Number(v);
+    return v;
+  }
+
+  function parseCSV(text) {
+    const lines = text.split(/\r?\n/).filter((l) => l.length > 0);
+    if (lines.length === 0) return { rows: [], cols: {}, order: [] };
+    const header = parseCSVLine(lines[0]);
+    const rawRows = lines.slice(1).map(parseCSVLine);
+    const cols = {};
+    header.forEach((h, i) => {
+      const vals = rawRows.map((r) => (r[i] === undefined ? "" : r[i]));
+      cols[h] = classifyColumn(vals);
+    });
+    const rows = rawRows.map((r) => {
+      const obj = {};
+      header.forEach((h, i) => {
+        obj[h] = parseValue(r[i] === undefined ? "" : r[i], cols[h]);
+      });
+      return obj;
+    });
+    return { rows, cols, order: header };
+  }
+
+  function fmt(v, opts) {
+    opts = opts || {};
+    if (v === null || v === undefined) return "—";
+    if (typeof v === "boolean") return v ? "Yes" : "No";
+    if (typeof v === "number") {
+      if (Number.isNaN(v)) return "NaN";
+      const abs = Math.abs(v);
+      if (abs !== 0 && (abs < 1e-3 || abs >= 1e5)) return v.toExponential(2);
+      const p = Number(v.toPrecision(opts.sig || 4));
+      return String(p);
+    }
+    return String(v);
+  }
+
+  function el(tag, attrs, children) {
+    const e = document.createElement(tag);
+    if (attrs) for (const k in attrs) {
+      if (k === "class") e.className = attrs[k];
+      else if (k === "text") e.textContent = attrs[k];
+      else e.setAttribute(k, attrs[k]);
+    }
+    (children || []).forEach((c) => e.appendChild(c));
+    return e;
+  }
+  function svgEl(tag, attrs) {
+    const e = document.createElementNS(SVGNS, tag);
+    if (attrs) for (const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  function makeLinear(domain, range) {
+    const span = (domain[1] - domain[0]) || 1;
+    return (v) => range[0] + ((v - domain[0]) / span) * (range[1] - range[0]);
+  }
+  function makeLog(domain, range) {
+    const l0 = Math.log(Math.max(domain[0], 1e-12)), l1 = Math.log(Math.max(domain[1], 1e-12));
+    const span = (l1 - l0) || 1;
+    return (v) => range[0] + ((Math.log(Math.max(v, 1e-12)) - l0) / span) * (range[1] - range[0]);
+  }
+
+  // ---------- tooltip ----------
+  const tooltipEl = document.getElementById("tooltip");
+  function showTooltip(x, y, buildFn) {
+    tooltipEl.innerHTML = "";
+    buildFn(tooltipEl);
+    tooltipEl.style.left = x + 12 + "px";
+    tooltipEl.style.top = y + 12 + "px";
+    tooltipEl.classList.add("show");
+  }
+  function hideTooltip() { tooltipEl.classList.remove("show"); }
+  function ttRow(parent, k, v) {
+    const row = el("div", { class: "tt-row" });
+    row.appendChild(el("span", { class: "k", text: k }));
+    row.appendChild(el("span", { class: "v", text: v }));
+    parent.appendChild(row);
+  }
+
+  let toastTimer = null;
+  function toast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove("show"), 2400);
+  }
+
+  // ---------- file loading ----------
+  function setupDropzone(zoneId, inputId, btnId, fileLabelId, onLoad) {
+    const zone = document.getElementById(zoneId);
+    const input = document.getElementById(inputId);
+    const btn = document.getElementById(btnId);
+    const label = document.getElementById(fileLabelId);
+    btn.addEventListener("click", () => input.click());
+    input.addEventListener("change", () => {
+      if (input.files && input.files[0]) readFile(input.files[0], label, onLoad);
+    });
+    zone.addEventListener("dragover", (e) => { e.preventDefault(); zone.classList.add("drag"); });
+    zone.addEventListener("dragleave", () => zone.classList.remove("drag"));
+    zone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      zone.classList.remove("drag");
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) readFile(e.dataTransfer.files[0], label, onLoad);
+    });
+  }
+  function readFile(file, label, onLoad) {
+    label.textContent = file.name + " (loading…)";
+    const reader = new FileReader();
+    reader.onload = () => {
+      label.textContent = file.name;
+      onLoad(reader.result, file.name);
+    };
+    reader.onerror = () => { label.textContent = file.name + " — failed to read"; };
+    reader.readAsText(file);
+  }
+
+  setupDropzone("dz-summary", "file-summary", "btn-summary", "dz-summary-file", (text) => {
+    const parsed = parseCSV(text);
+    state.summaryRows = parsed.rows;
+    state.summaryCols = parsed.cols;
+    state.summaryOrder = parsed.order;
+    state.selectedParam = null;
+    renderOverview();
+  });
+  setupDropzone("dz-details", "file-details", "btn-details", "dz-details-file", (text) => {
+    const parsed = parseCSV(text);
+    state.detailRows = parsed.rows;
+    state.detailCols = parsed.cols;
+    state.detailOrder = parsed.order;
+    state.selectedConfigKey = null;
+    renderGrid();
+  });
+
+  // ---------- tabs ----------
+  document.querySelectorAll(".tab-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
+      document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById("panel-" + btn.dataset.tab).classList.add("active");
+    });
+  });
+  function activateTab(name) {
+    document.querySelectorAll(".tab-btn").forEach((b) => b.classList.toggle("active", b.dataset.tab === name));
+    document.querySelectorAll(".tab-panel").forEach((p) => p.classList.toggle("active", p.id === "panel-" + name));
+  }
+
+  // ================= OVERVIEW TAB =================
+  const METRIC_KEYS = ["coverage_deviation", "advance_rate", "false_advance_rate", "calibration_nll", "n_episodes"];
+
+  function renderOverview() {
+    const empty = document.getElementById("overview-empty");
+    const content = document.getElementById("overview-content");
+    if (!state.summaryRows.length) {
+      empty.style.display = "";
+      content.style.display = "none";
+      return;
+    }
+    empty.style.display = "none";
+    content.style.display = "";
+    content.innerHTML = "";
+
+    const baseline = state.summaryRows.find((r) => r.sweep_param === "baseline");
+    const params = [];
+    const seen = new Set();
+    state.summaryRows.forEach((r) => {
+      if (r.sweep_param !== "baseline" && !seen.has(r.sweep_param)) { seen.add(r.sweep_param); params.push(r.sweep_param); }
+    });
+
+    const total = state.summaryRows.length;
+    const viableCount = state.summaryRows.filter((r) => r.found_viable === true).length;
+
+    const statRow = el("div", { class: "stat-row" });
+    if (baseline) {
+      statRow.appendChild(statTile("Baseline min σ_visible", fmt(baseline.min_sigma_visible), baseline.found_viable ? "viable" : "not viable"));
+      statRow.appendChild(statTile("Baseline min odom_noise", fmt(baseline.min_odom_noise), baseline.found_viable ? "viable" : "not viable"));
+    }
+    statRow.appendChild(statTile("Config-points evaluated", String(total), viableCount + " / " + total + " found a viable pair"));
+    content.appendChild(statRow);
+
+    content.appendChild(el("div", { class: "section-title", text: "Swept parameters" }));
+    content.appendChild(el("div", { class: "section-hint", text: "Click a card to inspect that parameter's minimum-viable-sigma curve below." }));
+    const miniGrid = el("div", { class: "mini-grid" });
+    params.forEach((p) => miniGrid.appendChild(buildMiniCard(p)));
+    content.appendChild(miniGrid);
+
+    if (!state.selectedParam && params.length) state.selectedParam = params[0];
+    if (state.selectedParam) content.appendChild(buildFocusCard(state.selectedParam));
+  }
+
+  function statTile(label, value, sub) {
+    return el("div", { class: "stat-tile" }, [
+      el("div", { class: "st-label", text: label }),
+      el("div", { class: "st-value", text: value }),
+      el("div", { class: "st-sub", text: sub }),
+    ]);
+  }
+
+  function rowsForParam(param) {
+    const rows = state.summaryRows.filter((r) => r.sweep_param === param);
+    const isCategorical = rows.some((r) => typeof r.sweep_value === "string");
+    if (isCategorical) {
+      rows.sort((a, b) => String(a.sweep_value).localeCompare(String(b.sweep_value)));
+    } else {
+      rows.sort((a, b) => (a.sweep_value - b.sweep_value));
+    }
+    return { rows, isCategorical };
+  }
+
+  function buildMiniCard(param) {
+    const { rows, isCategorical } = rowsForParam(param);
+    const card = el("button", { class: "mini-card" + (param === state.selectedParam ? " active" : ""), type: "button" });
+    card.appendChild(el("div", { class: "mc-title", text: param }));
+    const svg = buildLineChart(rows, isCategorical, { width: 220, height: 100, interactive: false, margin: { t: 6, r: 6, b: 6, l: 6 } });
+    card.appendChild(svg);
+    const viableN = rows.filter((r) => r.found_viable === true).length;
+    card.appendChild(el("div", { class: "mc-sub", text: viableN + "/" + rows.length + " viable" }));
+    card.addEventListener("click", () => {
+      state.selectedParam = param;
+      renderOverview();
+      document.getElementById("focus-card-anchor")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+    return card;
+  }
+
+  function buildFocusCard(param) {
+    const { rows, isCategorical } = rowsForParam(param);
+    const card = el("div", { class: "card", id: "focus-card-anchor" });
+    const head = el("div", { class: "card-head" });
+    head.appendChild(el("h2", { text: param + " — minimum viable (σ_visible, odom_noise)" }));
+    const legend = el("div", { class: "legend" }, [
+      legendLine("var(--series-1)", "min σ_visible"),
+      legendLine("var(--series-2)", "min odom_noise"),
+      legendDot("var(--status-critical)", "no viable pair"),
+    ]);
+    head.appendChild(legend);
+    card.appendChild(head);
+
+    const wrap = el("div", { class: "chart-wrap chart-scroll" });
+    const svg = buildLineChart(rows, isCategorical, { width: 860, height: 300, interactive: true, margin: { t: 16, r: 24, b: 34, l: 54 }, xTitle: param, yTitle: "value (log scale)" });
+    wrap.appendChild(svg);
+    card.appendChild(wrap);
+
+    card.appendChild(buildSummaryTable(rows));
+    return card;
+  }
+
+  function legendLine(color, label) {
+    return el("div", { class: "legend-item" }, [
+      el("span", { class: "legend-swatch", style: "background:" + color }),
+      el("span", { text: label }),
+    ]);
+  }
+  function legendDot(color, label) {
+    return el("div", { class: "legend-item" }, [
+      el("span", { class: "legend-dot", style: "background:" + color }),
+      el("span", { text: label }),
+    ]);
+  }
+
+  function buildLineChart(rows, isCategorical, opts) {
+    const W = opts.width, H = opts.height, M = opts.margin;
+    const svg = svgEl("svg", { class: "chart", width: W, height: H, viewBox: "0 0 " + W + " " + H, role: "img" });
+    const plotW = W - M.l - M.r, plotH = H - M.t - M.b;
+
+    let xScale, xPos, catLabels = null;
+    if (isCategorical) {
+      catLabels = [...new Set(rows.map((r) => String(r.sweep_value)))];
+      const band = plotW / Math.max(catLabels.length, 1);
+      xPos = (v) => M.l + band * catLabels.indexOf(String(v)) + band / 2;
+    } else {
+      const vals = rows.map((r) => r.sweep_value);
+      let lo = Math.min(...vals), hi = Math.max(...vals);
+      if (lo === hi) { lo -= 1; hi += 1; }
+      const pad = (hi - lo) * 0.08;
+      xScale = makeLinear([lo - pad, hi + pad], [M.l, M.l + plotW]);
+      xPos = (v) => xScale(v);
+    }
+
+    const yvals = [];
+    rows.forEach((r) => {
+      if (typeof r.min_sigma_visible === "number" && !Number.isNaN(r.min_sigma_visible)) yvals.push(r.min_sigma_visible);
+      if (typeof r.min_odom_noise === "number" && !Number.isNaN(r.min_odom_noise)) yvals.push(r.min_odom_noise);
+    });
+    let yLo = yvals.length ? Math.min(...yvals) : 1e-4;
+    let yHi = yvals.length ? Math.max(...yvals) : 1;
+    if (yLo <= 0) yLo = 1e-6;
+    if (yLo === yHi) { yLo /= 3; yHi *= 3; }
+    yLo /= 1.4; yHi *= 1.4;
+    const yScale = makeLog([yLo, yHi], [M.t + plotH, M.t]);
+
+    if (opts.interactive) {
+      const nyTicks = 5;
+      for (let i = 0; i < nyTicks; i++) {
+        const v = yLo * Math.pow(yHi / yLo, i / (nyTicks - 1));
+        const y = yScale(v);
+        svg.appendChild(svgEl("line", { class: "gridline", x1: M.l, x2: M.l + plotW, y1: y, y2: y }));
+        const t = svgEl("text", { class: "axis-label", x: M.l - 8, y: y + 3, "text-anchor": "end" });
+        t.textContent = fmt(v);
+        svg.appendChild(t);
+      }
+    }
+    svg.appendChild(svgEl("line", { class: "axisline", x1: M.l, x2: M.l, y1: M.t, y2: M.t + plotH }));
+    svg.appendChild(svgEl("line", { class: "axisline", x1: M.l, x2: M.l + plotW, y1: M.t + plotH, y2: M.t + plotH }));
+
+    if (opts.interactive) {
+      if (isCategorical) {
+        catLabels.forEach((lab) => {
+          const t = svgEl("text", { class: "axis-label", x: xPos(lab), y: M.t + plotH + 16, "text-anchor": "middle" });
+          t.textContent = lab;
+          svg.appendChild(t);
+        });
+      } else {
+        const uniqVals = [...new Set(rows.map((r) => r.sweep_value))].sort((a, b) => a - b);
+        const step = Math.max(1, Math.ceil(uniqVals.length / 7));
+        uniqVals.forEach((v, i) => {
+          if (i % step !== 0 && i !== uniqVals.length - 1) return;
+          const t = svgEl("text", { class: "axis-label", x: xPos(v), y: M.t + plotH + 16, "text-anchor": "middle" });
+          t.textContent = fmt(v);
+          svg.appendChild(t);
+        });
+      }
+      if (opts.xTitle) {
+        const t = svgEl("text", { class: "axis-title", x: M.l + plotW / 2, y: H - 2, "text-anchor": "middle" });
+        t.textContent = opts.xTitle;
+        svg.appendChild(t);
+      }
+      if (opts.yTitle) {
+        const t = svgEl("text", { class: "axis-title", x: -( M.t + plotH / 2), y: 12, "text-anchor": "middle", transform: "rotate(-90)" });
+        t.textContent = opts.yTitle;
+        svg.appendChild(t);
+      }
+    }
+
+    function drawSeries(key, color) {
+      let path = "";
+      let started = false;
+      rows.forEach((r) => {
+        const v = r[key];
+        if (typeof v !== "number" || Number.isNaN(v)) { started = false; return; }
+        const x = xPos(r.sweep_value), y = yScale(v);
+        path += (started ? "L" : "M") + x.toFixed(1) + "," + y.toFixed(1) + " ";
+        started = true;
+      });
+      if (path) svg.appendChild(svgEl("path", { d: path.trim(), fill: "none", stroke: color, "stroke-width": 2, "stroke-linecap": "round" }));
+    }
+    drawSeries("min_sigma_visible", "var(--series-1)");
+    drawSeries("min_odom_noise", "var(--series-2)");
+
+    rows.forEach((r) => {
+      const x = xPos(r.sweep_value);
+      if (r.found_viable !== true) {
+        const critColor = getColorVar("--status-critical");
+        svg.appendChild(svgEl("line", { x1: x, x2: x, y1: M.t + plotH - 6, y2: M.t + plotH, stroke: critColor, "stroke-width": 3, "stroke-linecap": "round" }));
+        if (opts.interactive) {
+          const hit = svgEl("circle", { cx: x, cy: M.t + plotH, r: 12, fill: "transparent", tabindex: 0 });
+          attachPointTooltip(hit, r);
+          svg.appendChild(hit);
+        }
+        return;
+      }
+      [["min_sigma_visible", "var(--series-1)"], ["min_odom_noise", "var(--series-2)"]].forEach(([key, color]) => {
+        const v = r[key];
+        if (typeof v !== "number" || Number.isNaN(v)) return;
+        const y = yScale(v);
+        const dotColor = getColorVar(color);
+        svg.appendChild(svgEl("circle", { cx: x, cy: y, r: 4, fill: dotColor }));
+        if (opts.interactive) {
+          const hit = svgEl("circle", { cx: x, cy: y, r: 12, fill: "transparent", tabindex: 0 });
+          attachPointTooltip(hit, r);
+          svg.appendChild(hit);
+        }
+      });
+    });
+
+    return svg;
+  }
+
+  function getColorVar(varRef) {
+    if (!varRef.startsWith("var(")) return varRef;
+    const name = varRef.slice(4, -1);
+    return cssVar(name);
+  }
+
+  function eventPagePos(evt, targetEl) {
+    if (typeof evt.pageX === "number" && (evt.pageX !== 0 || evt.pageY !== 0)) return { x: evt.pageX, y: evt.pageY };
+    const rect = targetEl.getBoundingClientRect();
+    return { x: rect.left + rect.width / 2 + window.scrollX, y: rect.top + window.scrollY };
+  }
+
+  function attachPointTooltip(hitEl, row) {
+    function show(evt) {
+      const pos = eventPagePos(evt, hitEl);
+      showTooltip(pos.x, pos.y, (tt) => {
+        tt.appendChild(el("div", { class: "tt-title", text: String(row.sweep_param) + " = " + (row.sweep_value === null ? "baseline" : fmt(row.sweep_value)) }));
+        const statusRow = el("div", { class: "tt-status" });
+        const dotColor = row.found_viable === true ? "var(--status-good)" : "var(--status-critical)";
+        statusRow.appendChild(el("span", { class: "legend-dot", style: "background:" + getColorVar(dotColor) }));
+        statusRow.appendChild(el("span", { text: row.found_viable === true ? "Viable pair found" : "No viable pair" }));
+        tt.appendChild(statusRow);
+        if (row.found_viable === true) {
+          ttRow(tt, "min σ_visible", fmt(row.min_sigma_visible));
+          ttRow(tt, "min odom_noise", fmt(row.min_odom_noise));
+          ttRow(tt, "coverage_deviation", fmt(row.coverage_deviation));
+          ttRow(tt, "advance_rate", fmt(row.advance_rate));
+          ttRow(tt, "false_advance_rate", fmt(row.false_advance_rate));
+        }
+      });
+    }
+    hitEl.addEventListener("pointerenter", show);
+    hitEl.addEventListener("pointermove", show);
+    hitEl.addEventListener("focus", show);
+    hitEl.addEventListener("pointerleave", hideTooltip);
+    hitEl.addEventListener("blur", hideTooltip);
+    hitEl.addEventListener("click", () => {
+      if (!state.detailRows.length) { toast("Load a details CSV to open the grid for this point."); return; }
+      state.selectedConfigKey = configKey(row.sweep_param, row.sweep_value);
+      renderGrid();
+      activateTab("grid");
+    });
+  }
+
+  function buildSummaryTable(rows) {
+    const compactCols = ["sweep_value", "min_sigma_visible", "min_odom_noise", "found_viable", "coverage_deviation", "advance_rate", "false_advance_rate", "n_episodes"];
+    const allCols = state.summaryOrder;
+    let showAll = false;
+    let sortCol = "sweep_value", sortDir = 1;
+
+    const wrap = el("div", {});
+    const toggleBtn = el("button", { class: "toggle-link", type: "button", text: "Show all parameter columns" });
+    wrap.appendChild(toggleBtn);
+    const tableHolder = el("div", { class: "table-scroll", style: "margin-top:8px;" });
+    wrap.appendChild(tableHolder);
+
+    function draw() {
+      const cols = showAll ? allCols.filter((c) => c !== "sweep_param") : compactCols;
+      const sorted = [...rows].sort((a, b) => {
+        let av = a[sortCol], bv = b[sortCol];
+        if (av === null) av = -Infinity; if (bv === null) bv = -Infinity;
+        if (typeof av === "number" && Number.isNaN(av)) av = -Infinity;
+        if (typeof bv === "number" && Number.isNaN(bv)) bv = -Infinity;
+        if (av < bv) return -1 * sortDir;
+        if (av > bv) return 1 * sortDir;
+        return 0;
+      });
+      const table = el("table", { class: "data-table" });
+      const thead = el("thead", {});
+      const htr = el("tr", {});
+      cols.forEach((c) => {
+        const th = el("th", { text: c });
+        if (c === sortCol) { th.classList.add("sorted"); th.setAttribute("data-arrow", sortDir === 1 ? "▲" : "▼"); }
+        th.addEventListener("click", () => {
+          if (sortCol === c) sortDir *= -1; else { sortCol = c; sortDir = 1; }
+          draw();
+        });
+        htr.appendChild(th);
+      });
+      thead.appendChild(htr);
+      table.appendChild(thead);
+      const tbody = el("tbody", {});
+      sorted.forEach((r) => {
+        const tr = el("tr", {});
+        cols.forEach((c) => {
+          let cell;
+          if (c === "found_viable") {
+            cell = el("td", {});
+            const pill = el("span", { class: "pill" }, [
+              el("span", { class: "dot", style: "background:" + getColorVar(r.found_viable ? "var(--status-good)" : "var(--status-critical)") }),
+              el("span", { text: r.found_viable ? "Viable" : "Not viable" }),
+            ]);
+            cell.appendChild(pill);
+          } else {
+            cell = el("td", { text: fmt(r[c]) });
+          }
+          tr.appendChild(cell);
+        });
+        table.appendChild(tr);
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      tableHolder.innerHTML = "";
+      tableHolder.appendChild(table);
+    }
+    toggleBtn.addEventListener("click", () => {
+      showAll = !showAll;
+      toggleBtn.textContent = showAll ? "Show fewer columns" : "Show all parameter columns";
+      draw();
+    });
+    draw();
+    return wrap;
+  }
+
+  // ================= GRID TAB =================
+  function configKey(param, value) {
+    return param + "::" + (value === null || value === undefined ? "" : value);
+  }
+
+  function renderGrid() {
+    const empty = document.getElementById("grid-empty");
+    const content = document.getElementById("grid-content");
+    if (!state.detailRows.length) {
+      empty.style.display = "";
+      content.style.display = "none";
+      return;
+    }
+    empty.style.display = "none";
+    content.style.display = "";
+    content.innerHTML = "";
+
+    const configs = [];
+    const seen = new Set();
+    state.detailRows.forEach((r) => {
+      const key = configKey(r.sweep_param, r.sweep_value);
+      if (!seen.has(key)) {
+        seen.add(key);
+        configs.push({ key, param: r.sweep_param, value: r.sweep_value });
+      }
+    });
+    configs.sort((a, b) => {
+      if (a.param === "baseline") return -1;
+      if (b.param === "baseline") return 1;
+      if (a.param !== b.param) return a.param.localeCompare(b.param);
+      if (typeof a.value === "string") return a.value.localeCompare(b.value);
+      return a.value - b.value;
+    });
+
+    if (!state.selectedConfigKey || !configs.some((c) => c.key === state.selectedConfigKey)) {
+      state.selectedConfigKey = configs[0].key;
+    }
+
+    const controls = el("div", { class: "controls-row" });
+    const configControl = el("div", { class: "control" });
+    configControl.appendChild(el("label", { text: "Config-point" }));
+    const select = el("select", {});
+    configs.forEach((c) => {
+      const label = c.param === "baseline" ? "baseline" : (c.param + " = " + (typeof c.value === "string" ? c.value : fmt(c.value)));
+      const opt = el("option", { value: c.key, text: label });
+      if (c.key === state.selectedConfigKey) opt.selected = true;
+      select.appendChild(opt);
+    });
+    select.addEventListener("change", () => { state.selectedConfigKey = select.value; renderGrid(); });
+    configControl.appendChild(select);
+    controls.appendChild(configControl);
+
+    const colorControl = el("div", { class: "control" });
+    colorControl.appendChild(el("label", { text: "Color cells by" }));
+    const colorSelect = el("select", {});
+    [["viable", "Viable / not viable"], ["coverage_deviation", "Coverage deviation"], ["advance_rate", "Advance rate"], ["false_advance_rate", "False advance rate"], ["calibration_nll", "Calibration NLL"]].forEach(([v, l]) => {
+      const opt = el("option", { value: v, text: l });
+      if (v === state.gridColorMode) opt.selected = true;
+      colorSelect.appendChild(opt);
+    });
+    colorSelect.addEventListener("change", () => { state.gridColorMode = colorSelect.value; renderGrid(); });
+    colorControl.appendChild(colorSelect);
+    controls.appendChild(colorControl);
+    content.appendChild(controls);
+
+    const rows = state.detailRows.filter((r) => configKey(r.sweep_param, r.sweep_value) === state.selectedConfigKey);
+    content.appendChild(buildGridCard(rows));
+  }
+
+  function buildGridCard(rows) {
+    const sigmaVals = [...new Set(rows.map((r) => r.sigma_visible))].sort((a, b) => a - b);
+    const odomVals = [...new Set(rows.map((r) => r.odom_noise))].sort((a, b) => a - b);
+    const lookup = new Map();
+    rows.forEach((r) => lookup.set(r.sigma_visible + "|" + r.odom_noise, r));
+
+    let best = null;
+    rows.forEach((r) => {
+      if (r.viable === true) {
+        const score = r.sigma_visible * r.odom_noise;
+        if (!best || score < best.score) best = { score, sv: r.sigma_visible, on: r.odom_noise };
+      }
+    });
+
+    const frontier = [];
+    sigmaVals.forEach((sv) => {
+      let maxOn = null;
+      odomVals.forEach((on) => {
+        const r = lookup.get(sv + "|" + on);
+        if (r && r.viable === true) { if (maxOn === null || on > maxOn) maxOn = on; }
+      });
+      if (maxOn !== null) frontier.push({ sv, on: maxOn });
+    });
+
+    const card = el("div", { class: "card" });
+    const head = el("div", { class: "card-head" });
+    head.appendChild(el("h2", { text: "sigma_visible × odom_noise viability (" + sigmaVals.length + "×" + odomVals.length + " grid)" }));
+    const legend = el("div", { class: "legend" });
+    if (state.gridColorMode === "viable") {
+      legend.appendChild(legendDot("var(--status-good)", "viable"));
+      legend.appendChild(legendDot("var(--status-critical)", "not viable"));
+    } else {
+      legend.appendChild(el("div", { class: "legend-item", text: "low → high: " + state.gridColorMode }));
+    }
+    legend.appendChild(legendLine("var(--status-good)", "viable frontier (max odom_noise per σ)"));
+    head.appendChild(legend);
+    card.appendChild(head);
+
+    const statRow = el("div", { class: "stat-row" });
+    if (best) {
+      statRow.appendChild(statTile("Min σ_visible (best pair)", fmt(best.sv), "product-minimizing viable point"));
+      statRow.appendChild(statTile("Matching odom_noise", fmt(best.on), ""));
+    } else {
+      statRow.appendChild(statTile("Viable pairs", "0 / " + rows.length, "no viable (σ_visible, odom_noise) pair in this grid"));
+    }
+    card.appendChild(statRow);
+
+    const wrap = el("div", { class: "chart-wrap chart-scroll" });
+    wrap.appendChild(buildHeatmap(sigmaVals, odomVals, lookup, best, frontier));
+    card.appendChild(wrap);
+
+    card.appendChild(el("div", { class: "frontier-note", text: "Reading tip: for each σ_visible row, the viable frontier marks the largest odom_noise still viable — i.e. the max observation/odometry noise tolerated at that belief tightness." }));
+
+    const toggleBtn = el("button", { class: "toggle-link", type: "button", text: "View grid as table", style: "margin-top:12px;" });
+    const tableHolder = el("div", { style: "display:none; margin-top:8px;" });
+    toggleBtn.addEventListener("click", () => {
+      const showing = tableHolder.style.display !== "none";
+      tableHolder.style.display = showing ? "none" : "";
+      toggleBtn.textContent = showing ? "View grid as table" : "Hide table";
+      if (!showing && !tableHolder.dataset.built) {
+        tableHolder.dataset.built = "1";
+        tableHolder.appendChild(buildDetailTable(rows));
+      }
+    });
+    card.appendChild(toggleBtn);
+    card.appendChild(tableHolder);
+
+    return card;
+  }
+
+  function buildHeatmap(sigmaVals, odomVals, lookup, best, frontier) {
+    const cell = Math.max(20, Math.min(38, Math.floor(760 / Math.max(odomVals.length, 1))));
+    const M = { t: 12, r: 16, b: 70, l: 92 };
+    const plotW = cell * odomVals.length, plotH = cell * sigmaVals.length;
+    const W = M.l + plotW + M.r, H = M.t + plotH + M.b;
+    const svg = svgEl("svg", { class: "chart", width: W, height: H, viewBox: "0 0 " + W + " " + H, role: "img" });
+
+    const sigmaDomain = [Math.min(...sigmaVals), Math.max(...sigmaVals)];
+    let metricLo = Infinity, metricHi = -Infinity;
+    if (state.gridColorMode !== "viable") {
+      lookup.forEach((r) => {
+        const v = r[state.gridColorMode];
+        if (typeof v === "number" && !Number.isNaN(v)) { if (v < metricLo) metricLo = v; if (v > metricHi) metricHi = v; }
+      });
+      if (!isFinite(metricLo)) { metricLo = 0; metricHi = 1; }
+      if (metricLo === metricHi) { metricLo -= 1; metricHi += 1; }
+    }
+
+    // rows: sigma ascending top->bottom reversed so smallest sigma at bottom (like a chart origin)
+    const rowsOrdered = [...sigmaVals].reverse();
+    rowsOrdered.forEach((sv, ri) => {
+      odomVals.forEach((on, ci) => {
+        const r = lookup.get(sv + "|" + on);
+        const x = M.l + ci * cell, y = M.t + ri * cell;
+        let fill;
+        if (!r) fill = cssVar("--gridline");
+        else if (state.gridColorMode === "viable") fill = r.viable === true ? cssVar("--status-good") : cssVar("--status-critical");
+        else {
+          const v = r[state.gridColorMode];
+          if (typeof v !== "number" || Number.isNaN(v)) fill = cssVar("--gridline");
+          else {
+            const t = (v - metricLo) / (metricHi - metricLo);
+            const idx = Math.max(0, Math.min(SEQ_RAMP.length - 1, Math.round(t * (SEQ_RAMP.length - 1))));
+            fill = SEQ_RAMP[idx];
+          }
+        }
+        const rect = svgEl("rect", { x: x + 1, y: y + 1, width: cell - 2, height: cell - 2, rx: 3, fill, tabindex: 0 });
+        if (best && best.sv === sv && best.on === on) {
+          rect.setAttribute("stroke", cssVar("--text-primary"));
+          rect.setAttribute("stroke-width", 2.5);
+        }
+        svg.appendChild(rect);
+        attachCellTooltip(rect, r, sv, on, best);
+      });
+    });
+
+    if (frontier.length) {
+      let path = "";
+      frontier.forEach((f, i) => {
+        const ri = rowsOrdered.indexOf(f.sv);
+        const ci = odomVals.indexOf(f.on);
+        const xRight = M.l + (ci + 1) * cell;
+        const yTop = M.t + ri * cell;
+        const yBot = yTop + cell;
+        path += (i === 0 ? "M" : "L") + xRight + "," + yTop + " ";
+        path += "L" + xRight + "," + yBot + " ";
+      });
+      svg.appendChild(svgEl("path", { d: path.trim(), fill: "none", stroke: cssVar("--status-good"), "stroke-width": 2.5, "stroke-linejoin": "round" }));
+    }
+
+    rowsOrdered.forEach((sv, ri) => {
+      const t = svgEl("text", { class: "axis-label", x: M.l - 8, y: M.t + ri * cell + cell / 2 + 3, "text-anchor": "end" });
+      t.textContent = fmt(sv);
+      svg.appendChild(t);
+    });
+    odomVals.forEach((on, ci) => {
+      const t = svgEl("text", { class: "axis-label", x: M.l + ci * cell + cell / 2, y: M.t + plotH + 14, "text-anchor": "end", transform: "rotate(-55 " + (M.l + ci * cell + cell / 2) + " " + (M.t + plotH + 14) + ")" });
+      t.textContent = fmt(on);
+      svg.appendChild(t);
+    });
+
+    const xTitle = svgEl("text", { class: "axis-title", x: M.l + plotW / 2, y: H - 4, "text-anchor": "middle" });
+    xTitle.textContent = "odom_noise";
+    svg.appendChild(xTitle);
+    const yTitle = svgEl("text", { class: "axis-title", x: -(M.t + plotH / 2), y: 14, "text-anchor": "middle", transform: "rotate(-90)" });
+    yTitle.textContent = "sigma_visible";
+    svg.appendChild(yTitle);
+
+    return svg;
+  }
+
+  function attachCellTooltip(rectEl, row, sv, on, best) {
+    function show(evt) {
+      const pos = eventPagePos(evt, rectEl);
+      showTooltip(pos.x, pos.y, (tt) => {
+        tt.appendChild(el("div", { class: "tt-title", text: "σ_visible=" + fmt(sv) + ", odom_noise=" + fmt(on) }));
+        if (!row) { tt.appendChild(el("div", { text: "no data" })); return; }
+        const statusRow = el("div", { class: "tt-status" });
+        statusRow.appendChild(el("span", { class: "legend-dot", style: "background:" + getColorVar(row.viable ? "var(--status-good)" : "var(--status-critical)") }));
+        statusRow.appendChild(el("span", { text: row.viable ? "Viable" : "Not viable" }));
+        tt.appendChild(statusRow);
+        if (best && best.sv === sv && best.on === on) tt.appendChild(el("div", { text: "★ minimum viable (product-minimizing)" }));
+        ttRow(tt, "coverage_deviation", fmt(row.coverage_deviation));
+        ttRow(tt, "advance_rate", fmt(row.advance_rate));
+        ttRow(tt, "false_advance_rate", fmt(row.false_advance_rate));
+        ttRow(tt, "calibration_nll", fmt(row.calibration_nll));
+        ttRow(tt, "n_episodes", fmt(row.n_episodes));
+      });
+    }
+    rectEl.addEventListener("pointerenter", show);
+    rectEl.addEventListener("pointermove", show);
+    rectEl.addEventListener("focus", show);
+    rectEl.addEventListener("pointerleave", hideTooltip);
+    rectEl.addEventListener("blur", hideTooltip);
+  }
+
+  function buildDetailTable(rows) {
+    const cols = ["sigma_visible", "odom_noise", "viable", "coverage_deviation", "advance_rate", "false_advance_rate", "calibration_nll", "n_episodes"];
+    let sortCol = "sigma_visible", sortDir = 1;
+    const holder = el("div", { class: "table-scroll" });
+    function draw() {
+      const sorted = [...rows].sort((a, b) => {
+        let av = a[sortCol], bv = b[sortCol];
+        if (typeof av === "number" && Number.isNaN(av)) av = -Infinity;
+        if (typeof bv === "number" && Number.isNaN(bv)) bv = -Infinity;
+        if (av < bv) return -1 * sortDir;
+        if (av > bv) return 1 * sortDir;
+        return 0;
+      });
+      const table = el("table", { class: "data-table" });
+      const thead = el("thead", {});
+      const htr = el("tr", {});
+      cols.forEach((c) => {
+        const th = el("th", { text: c });
+        if (c === sortCol) { th.classList.add("sorted"); th.setAttribute("data-arrow", sortDir === 1 ? "▲" : "▼"); }
+        th.addEventListener("click", () => { if (sortCol === c) sortDir *= -1; else { sortCol = c; sortDir = 1; } draw(); });
+        htr.appendChild(th);
+      });
+      thead.appendChild(htr);
+      table.appendChild(thead);
+      const tbody = el("tbody", {});
+      sorted.forEach((r) => {
+        const tr = el("tr", {});
+        cols.forEach((c) => {
+          if (c === "viable") {
+            const td = el("td", {});
+            td.appendChild(el("span", { class: "pill" }, [
+              el("span", { class: "dot", style: "background:" + getColorVar(r.viable ? "var(--status-good)" : "var(--status-critical)") }),
+              el("span", { text: r.viable ? "Viable" : "Not viable" }),
+            ]));
+            tr.appendChild(td);
+          } else {
+            tr.appendChild(el("td", { text: fmt(r[c]) }));
+          }
+        });
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      holder.innerHTML = "";
+      holder.appendChild(table);
+    }
+    draw();
+    return holder;
+  }
+
+  window.addEventListener("resize", () => {});
+})();
+</script>
+</body>
+</html>

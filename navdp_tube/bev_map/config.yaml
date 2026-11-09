@@ -1,0 +1,195 @@
+# BEV occupancy-grid pipeline configuration.
+# All distances in metres, angles in radians unless stated.
+# Simulation-only settings live in sim/config_sim.yaml.
+
+depth:
+  source: depth_anything   # "depth_anything" | "sam2" (terrain segmentation, seg: below; no depth model);
+                           # "sim" (MuJoCo ground-truth depth) only in sim/
+  model_id: depth-anything/Depth-Anything-V2-Metric-Indoor-Large-hf
+  min_range: 0.15
+  max_range: 3.5           # DA error grows with distance; ignore beyond this
+  # Correct Depth Anything depth with the known floor geometry each frame:
+  #   none   : use DA metric depth as-is
+  #   scale  : depth *= s
+  #   affine : depth = a * depth + b      (fits scale + offset)
+  floor_correction: affine
+  correction_ema: 0.3      # temporal smoothing of the correction (0 = none). DA's scale changes per
+                           # image, so heavy smoothing applies an old frame's fit to a new frame
+                           # (was 0.7: floor jitter 0.8 cm vs 0.02 cm unsmoothed, precision 0.71 vs 0.78)
+  scale_gate_rel: 0.10     # reject a frame whose fitted scale differs >10% from the recent median
+  scale_gate_window: 7     # ... median over this many recent fits
+  skip_unfitted: true      # do not map frames whose floor fit failed / was rejected
+
+seg:                       # depth.source = sam2: fine-tuned SAM2.1 Hiera-B+ terrain segmentation (sam2_seg.py)
+  checkpoint: ../best.pth  # relative to this folder
+  image_size: 1024         # the model's input size (frames are resized to it)
+  # classes: soil, bedrock, sand, bigrock. obstacle_classes stand on the ground (rocks: placed where they meet
+  # it); free_classes / ground_occupied_classes lie on it. Other classes are not used.
+  obstacle_classes: [bigrock]
+  free_classes: [soil, bedrock, sand]
+  ground_occupied_classes: []  # the ground these classes cover is occupied where it lies (flat, no height), e.g. [sand]
+  terrain_hidden_free: false  # ground hidden by the terrain itself (behind a rise, in a dip) -> free, not unknown
+  rock_depth: 0.5          # obstacle_classes: occupied from where the rock meets the ground to this far behind it
+  # sam2 maps from the cells: every cell within depth.max_range is projected into the image and takes its pixel's
+  # class (free / occupied / rock), if that pixel sees the cell (not hidden behind a hill or a rock)
+  min_conf: 0.5            # pixels whose top class probability is below this are not used
+  head_groups: 32          # GroupNorm groups / activation of the head (not stored in best.pth; must
+  head_act: gelu           # match the training code)
+
+pose_refine:               # measure camera tilt each frame from the visible floor
+  enabled: true            # (the assumed mount/odometry tilt is only a starting guess)
+  fit_pitch: false         # pitch is NOT observable from Depth Anything (its depth error mimics
+                           # pitch); keep false and give pitch from mount calibration / IMU.
+                           # Roll and the depth scale/offset are always fitted.
+  max_tilt_deg: 8.0        # search this far from the assumed tilt
+  rel_tol: 0.04            # floor inlier band, as a fraction of camera height
+  min_inlier_frac: 0.3     # below this the floor is not trusted -> keep the assumed tilt
+
+filter:
+  stride: 2                # use every n-th pixel for the point cloud
+  edge_rel_grad: 0.06      # drop pixels whose relative depth jump to a neighbour exceeds this (flying pixels)
+  edge_dilate: 2           # grow the edge mask by this many pixels
+
+first_hit:                 # keep only obstacle points near the closest obstacle per bearing
+  enabled: true            # (removes the band of smear monocular depth puts behind walls)
+  bin_deg: 0.5
+  quantile: 0.05           # robust "closest" = 5th percentile of ranges in the bin
+  min_rank: 2
+  margin: 0.08             # keep points within margin + margin_per_m * range of it
+  margin_per_m: 0.04
+
+classify:
+  floor_tol: 0.03          # |z| below this -> floor (free)
+  obstacle_min_z: 0.04     # obstacle band: [min_z, max_z] above the floor
+  obstacle_max_z: 0.60     # anything higher can be driven under / is ignored
+  min_obstacle_top: 0.06   # a cell is an obstacle only if some point in it reaches this high
+  pitch_uncertainty_deg: 0.0  # expected leftover camera pitch error; floor/obstacle height thresholds
+                              # widen by range*tan(this). Sim (exact pitch): 0. Real rover: ~0.5 with
+                              # IMU, ~1.5 without.
+
+grid:
+  resolution: 0.025        # metres per cell
+  x_min: -2.5
+  x_max: 2.5
+  y_min: -2.0
+  y_max: 2.0
+  min_points_near: 6       # obstacle points needed in a cell at near_ref distance
+  min_points_far: 2        # ... floor for far cells (fewer points land in them)
+  near_ref: 0.6
+  obstacle_max_range: 2.0  # obstacle evidence only this close (far DA depth smears walls); free space uses depth.max_range
+  # log-odds fusion
+  l_occ: 0.85
+  l_free: -0.4
+  l_min: -4.0
+  l_max: 4.0
+  occ_threshold: 2.0       # L above -> occupied (higher = needs more frames of evidence, less noise)
+  free_threshold: -0.6     # L below -> free
+  # clean-up on the final map
+  min_blob_cells: 4        # remove occupied specks smaller than this
+  close_free_iters: 1      # fill pinholes in free space
+
+render:
+  scale: 4                 # pixels per cell in the BEV image
+  local_size: 3.0          # side length of the robot-centred view (m)
+  robot_radius: 0.13
+
+# ---------------------------------------------------------------- real rover (run_bev_real.py)
+real:
+  camera_port: 5000            # GStreamer RTP/JPEG stream from the rover (v2/gstream.py)
+  telemetry_bind: "tcp://*:5557"   # rover_bridge/rover_state_bridge.py connects here
+  cmdvel_bind: "tcp://*:5556"  # same port the NavDP scripts use; run only one of them at a time
+  calibration: calib/real_camera.yaml   # written by calibrate_camera.py (relative to this folder)
+  fallback_hfov_deg: 60.0      # only if no calibration exists (inaccurate: calibrate!)
+  process_width: 960           # frames are resized to this width before depth estimation
+  camera_latency: 0.10         # s: camera frame is this much older than its arrival; pose is
+                               # looked up at (arrival - latency). Tune: map walls should not smear
+                               # sideways while turning.
+  telemetry_timeout: 0.5       # s: no telemetry for this long -> frames are not mapped
+  # Gimbal angles (deg) used when the rover does not report them. Keep the gimbal still while mapping.
+  pan_deg: 0.0
+  tilt_deg: 0.0
+  pan_sign: 1.0                # gimbal angle -> model joint angle (check with calibrate_camera.py check)
+  tilt_sign: 1.0               # model: +joint = camera looks up
+  imu_roll_sign: 1.0
+  imu_pitch_sign: 1.0
+  # motion gating: skip frames where pose/time errors are largest
+  max_yaw_rate: 0.6            # rad/s
+  max_tilt_rate: 0.35          # rad/s (IMU roll/pitch gyro, i.e. bouncing)
+  pitch_uncertainty_deg: 0.5   # replaces classify.pitch_uncertainty_deg on the real rover (IMU pitch)
+  grid: {x_min: -4.0, x_max: 6.0, y_min: -5.0, y_max: 5.0}   # odom frame; rover starts at (0, 0)
+  drive: {linear: 0.12, angular: 0.45, deadman: 0.6}       # m/s, rad/s, s without key -> stop
+
+# ---------------------------------------------------------------- tube-guided NavDP (run_bev_tube.py, sim/run_tube_sim.py)
+nav:
+  server: http://127.0.0.1:8890  # ../tube_navdp/scripts/tube_navdp_server.py
+  goal_bind: "tcp://*:5558"    # run_bev_tube.py takes goals here: JSON {"x","y"} odom or {"forward","left"} (empty = off)
+  mode: tube                   # navdp (plain) | obstacle | tube   (see ../tube_navdp/navdp/tube/README.md)
+  planner: navdp               # navdp: NavDP via the tube server (server:; the tube method, or pure_navdp) |
+                               # xnavdp: X-NavDP (xnavdp_server:; no tubes, no map) | sandplanner: SanD-Planner
+                               # (sandplanner_server:; no tubes, no map) | baselines (classic_nav.py):
+                               # astar: A* on this map + path tracker | astar_dwa: A* + DWA | navdp_dwa: NavDP + DWA
+  dwa:                         # Dynamic Window Approach (astar_dwa, navdp_dwa); speed / turn limits: max_speed,
+    horizon_s: 2.5             # max_yaw_rate below; rollouts nearer than hard_radius to the map are rejected
+    accel: 0.5                 # m/s^2
+    yaw_accel: 2.0             # rad/s^2
+    lookahead_m: 0.6           # target point this far along the global path (A*'s or NavDP's)
+    w_target: 1.0              # cost weights: distance to the target, final heading, clearance, slowness
+    w_heading: 0.3
+    w_clear: 0.6
+    w_speed: 0.4
+  xnavdp_server: http://127.0.0.1:8891
+  sandplanner_server: http://127.0.0.1:8892   # ../tube_navdp/scripts/sandplanner_server.py (sim/start_sandplanner_server.sh)
+  tube_consistency: 0.0        # mu: pull toward the previous plan (0 = off; try 0.3). Sent with every request,
+                               # so it overrides the server's --consistency
+  tube_smooth: 0.0             # beta: smooth projection into the tube boxes (0 = off; try 2); overrides --smooth
+  tube_split: null             # guided from this denoising step (null = the server's --split, 4); try 1 or 2
+  tube_rebuild: null           # true = tubes built again at every guided step (null = server's --rebuild-tubes)
+  tube_lyapunov: null          # off | min | ramp: Lyapunov-guided pull, LyaGuide (null = server's --lyapunov, off)
+  tube_lyapunov_delta: null    # delta in (0, 1): dist^2 to the tube must fall this fraction per step (null = 0.3)
+  tube_guide_until: null       # pull only before this denoising step, then NavDP alone (null = server's
+                               # --guide-until, 0 = to the last step); try 5. metrics.json: chosen_v, model_v
+  tube_push_step: null         # obstacle mode: m a pushed path may move per waypoint and axis (null = server's,
+                               # 0.25 = NavDP's own; up to 1, past 0.25 the moves leave NavDP's range)
+  tube_push_margin: null       # obstacle mode: push m past the grown obstacles (null = server's, 0); try 0.05
+  tube_push: nearest           # how the tubes push waypoints out of occupied cells: nearest (the first version) |
+                               # smooth (nearest, then smoothed inside free boxes; ./run_smooth_tests.sh)
+  pure_navdp: false            # true = NavDP by itself: mode navdp + controller track, no map sent to the server,
+                               # no map-based path override / turn-in-place (map only drawn/logged)
+  controller: track            # track: chase a waypoint of the chosen path | stt: the tube law. stt grows every
+                               # obstacle by lookahead_m more and keeps a wider berth: in the sim arena (0.9 m
+                               # gaps) it found almost no valid tubes and weaved; track reached the goal.
+  # robot footprint: the tube sees the robot as a point and the driver grows every occupied map cell by this. Rover is
+  # ~0.25 x 0.20 m with wheels: its enclosing circle is 0.16 m. No extra pad: the BEV map already draws obstacles a few
+  # cm too thick (Depth Anything; ~7 cm on the sim box), and 0.20 left NavDP's paths at a corner no clearance to pass.
+  # Do not inflate the map too.
+  robot_radius: 0.16           # fixed robot size: enclosing circle of the ~0.25 x 0.20 m rover (drawn on the map)
+  # inflation radius = robot_radius + margin: the planners (A*, DWA, the NavDP / tube driver) grow every obstacle
+  # cell by it and keep the robot centre that far away
+  inflation_margin: 0.08       # inflation radius 0.16 + 0.08 = 0.24 m, everywhere (drawn round the obstacles on the map)
+  # goal: map cells within this of the goal are not obstacles (the target object itself), else the tube
+  # steers away from the goal. Big enough to cover the object, small enough to keep a wall behind it.
+  goal_clear_radius: 0.40
+  stop_distance: 0.55          # stop when the robot centre is this close to the goal point. NavDP itself
+                               # turns any path shorter than 0.5 m into "stop", so keep this >= ~0.5
+  # map -> the planner's cells (nav_obstacles.obstacle_cells; no circles)
+  obstacle_range: 2.5          # m from the robot
+  min_blob_cells: 4            # specks smaller than this are dropped
+  # no fallback and no turning in place: the driver drives the candidate that goes farthest before the obstacles
+  # grown by the inflation radius (tube_nav.clear_length). No emergency stop either: the paths alone keep it off.
+  # speeds (the existing NavDP scripts use 0.06 m/s, 0.2 rad/s; keyboard driving 0.12 / 0.45)
+  max_speed: 0.10
+  max_yaw_rate: 0.35
+  # track controller: pure pursuit on the chosen path at control_hz (tube_nav.PathFollower)
+  follow_lookahead_m: 0.20     # m ahead on the path it steers to (smaller = follows the waypoints more tightly)
+  max_accel: 0.4               # m/s^2: how fast the speed may change (smoothness)
+  max_yaw_accel: 3.0           # rad/s^2: how fast the turn rate may change (smoothness)
+  curve_slow: 0.5              # slower on tight arcs: v = max_speed / (1 + curve_slow * curvature)
+  lookahead_m: 0.2             # stt controller point ahead of the robot (<= 0.25)
+  gain: 0.035
+  stop_threshold: -3.0         # NavDP critic: below this it turns in place (same as navdp_qwen_rover.py)
+  plan_hz: 5.0
+  control_hz: 20.0
+  plan_timeout: 1.0            # s: no newer plan -> stop
+  request_timeout: 5.0          # s per plan request
+  reset_timeout: 60.0          # s for a reset (the first one loads the NavDP model on the server)
+  image_scale: 0.5             # RGB-D sent to NavDP at this scale (it resizes to 224 anyway)

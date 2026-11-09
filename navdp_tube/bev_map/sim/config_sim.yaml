@@ -1,0 +1,12 @@
+# Simulation-only settings, merged on top of ../config.yaml by the scripts in this folder.
+
+sim:
+  xml_path: ../../simulation/data/ugv_rover_environment.xml   # relative to this folder (bev_map/sim)
+  camera_name: rover_camera
+  rover_body: rover
+  render_width: 960        # rendered at half of the 1920x1080 camera; K is derived from fovy
+  render_height: 540
+  camera_pan: 0.0
+  camera_tilt: 0.0
+  mask_background: true    # ignore pixels showing the empty void outside the scene (sim-only artefact)
+

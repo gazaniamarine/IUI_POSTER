@@ -1,0 +1,26 @@
+python rollout_navdp_policy.py --navdp-root ./navdp --ckpt ./navdp/ckpt_last.pt --scene assets/marsyard2022.glb --terrain-obj assets/marsyard2022.obj --scene-height-flip-z --start-x 10 --start-z 12 --start-yaw-deg 0 --goal-mesh-uv 0.5,0.52 --obstacle-mesh-uv 0.5,0.80 --belief-adapter ./navdp/belief_adapter.pt --cbf --cbf-mode cone --zero-lateral --cbf-radius-mode fixed --cbf-d-safe 1.2 --cbf-deadzone 0.8 --cbf-hard-gate --cbf-escape-yaw 0.9 --cbf-commit-side --clearance 0.9 --pose-terrain-radius 1.2 --max-steps 400 --stop-dist 1.2 --save-every 1 --save-video --out mars_belief_demo1
+
+./run_qwen_vla_rollout.sh --scene_path '/home/nahar/Desktop/pineapple/marsHabitat/assets/marsyard2022.glb' --heightmap_path '/home/nahar/Desktop/pineapple/marsHabitat/marsyard2022_terrain_hm.png' --out_dir vla_rollout2 --max_steps 250 --save-video
+
+python rollout_navdp_policy.py \
+  --navdp-root ../navdp_sam --ckpt ../navdp_sam/runsmars_turn_no_obstacle_action3d/ckpt_last.pt \
+  --scene marsyard2022_tri.glb --terrain-obj marsyard2022.obj --scene-height-flip-z \
+  --start-x -2 --start-z 8 --start-yaw-deg 120 \
+  --belief-adapter ../navdp_sam/runs/belief_adapter/belief_adapter.pt \
+  --cbf --cbf-mode cone --cbf-metric mahalanobis --cbf-cov-mode shrink \
+  --cbf-hard-gate --cbf-escape-yaw 0.6 --cbf-commit-side \
+  --cbf-d-safe 1.2 --cbf-deadzone 0.8 --zero-lateral \
+  --command-file command.txt \
+  --clearance 0.9 --pose-terrain-radius 1.2 \
+  --max-steps 400 --stop-dist 1.2 --save-video --out mars_full_system
+
+
+numbers: generated 2304 images in 2m 21.7s 
+
+[eval] mean accuracy over 10 random image(s): 0.9999
+
+
+mesh_annotation_tool -> python -m sam_vla.run_segmentation_sweep --out-dir output/ -> python3 -m sam_vla.perception.filter_empty_segmentation_frames --run-dir -> python -m sam_vla.perception.spot_check_segmentation --run-dir -> python -m sam_vla.perception.export_annotations --run-dir
+
+LoRA finetune the segmentation model (sam2 conda env, reads run_dir directly -- does not need export_annotations to have run first):
+python -m sam_vla.perception.finetune_sam2_lora --run-dir output/<run_id> --out-dir sam_lora_runs/exp1 --encoder-mode lora --epochs 20

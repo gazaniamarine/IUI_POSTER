@@ -1,0 +1,50 @@
+[
+  {
+    "id": "ep00",
+    "start_x": -13.996,
+    "start_z": 8.098,
+    "start_yaw": 130.18
+  },
+  {
+    "id": "ep01",
+    "start_x": -13.272,
+    "start_z": -2.041,
+    "start_yaw": 171.41
+  },
+  {
+    "id": "ep02",
+    "start_x": -0.934,
+    "start_z": 13.567,
+    "start_yaw": 321.02
+  },
+  {
+    "id": "ep03",
+    "start_x": 13.51,
+    "start_z": 12.6,
+    "start_yaw": 20.53
+  },
+  {
+    "id": "ep04",
+    "start_x": -8.099,
+    "start_z": 5.111,
+    "start_yaw": 219.19
+  },
+  {
+    "id": "ep05",
+    "start_x": -10.584,
+    "start_z": 12.374,
+    "start_yaw": 344.42
+  },
+  {
+    "id": "ep06",
+    "start_x": 6.675,
+    "start_z": -2.221,
+    "start_yaw": 189.37
+  },
+  {
+    "id": "ep07",
+    "start_x": 10.55,
+    "start_z": 12.672,
+    "start_yaw": 201.8
+  }
+]

@@ -1,0 +1,11 @@
+torch 
+torchvision 
+torchaudio
+opencv-python
+tqdm
+matplotlib
+numpy
+hydra-core
+omegaconf
+scikit-learn
+seaborn

@@ -1,0 +1,920 @@
+{
+  "config": {
+    "seed": 10,
+    "num_rocks": 100,
+    "radius_min": 0.25,
+    "radius_max": 0.7,
+    "min_spacing": 0.4,
+    "boundary_margin": 2.0,
+    "exclude_zones": [
+      [
+        0.0,
+        8.0,
+        3.0
+      ]
+    ],
+    "max_attempts_per_rock": 300
+  },
+  "rocks": [
+    {
+      "id": 0,
+      "x": -3.1989783314797435,
+      "y": -0.02026808261871338,
+      "z": 3.5129947867365487,
+      "yaw": 1.2949533840146048,
+      "radius": 0.5071311676104611,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_000.obj"
+    },
+    {
+      "id": 1,
+      "x": 16.684416617578243,
+      "y": 0.14574278708580052,
+      "z": 7.826632809547753,
+      "yaw": 1.516812717977706,
+      "radius": 0.4257641238292978,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_001.obj"
+    },
+    {
+      "id": 2,
+      "x": -6.14072061870802,
+      "y": -0.0688885197225454,
+      "z": 5.760182673569311,
+      "yaw": 3.940367038066072,
+      "radius": 0.3696504225499091,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_002.obj"
+    },
+    {
+      "id": 3,
+      "x": 22.35373609657041,
+      "y": -0.49289584159851074,
+      "z": -20.968397334534963,
+      "yaw": 5.786702628858224,
+      "radius": 0.6390174244003836,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_003.obj"
+    },
+    {
+      "id": 4,
+      "x": 6.221145484691828,
+      "y": 0.1498779058456421,
+      "z": -1.1668382365553889,
+      "yaw": 3.6251604777601583,
+      "radius": 0.29360273241721924,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_004.obj"
+    },
+    {
+      "id": 5,
+      "x": 8.651464972068887,
+      "y": 0.3956444263458252,
+      "z": -3.6673294454481145,
+      "yaw": 5.393663190033187,
+      "radius": 0.3876097003905331,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_005.obj"
+    },
+    {
+      "id": 6,
+      "x": -1.9893519500931838,
+      "y": -0.13369882106781006,
+      "z": 15.908881739837366,
+      "yaw": 1.3147994699590901,
+      "radius": 0.5455622652784955,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_006.obj"
+    },
+    {
+      "id": 7,
+      "x": -21.85692426638093,
+      "y": -0.5685162544250488,
+      "z": 8.121705658463103,
+      "yaw": 2.8530298749240104,
+      "radius": 0.3604564988316846,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_007.obj"
+    },
+    {
+      "id": 8,
+      "x": -13.918198347763932,
+      "y": -0.1715090274810791,
+      "z": 9.847613984352915,
+      "yaw": 4.010875086598178,
+      "radius": 0.6082182715375622,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_008.obj"
+    },
+    {
+      "id": 9,
+      "x": -1.6217620082037634,
+      "y": 0.23048687199430923,
+      "z": -4.292602353393672,
+      "yaw": 1.7248622038599701,
+      "radius": 0.41948275708399824,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_009.obj"
+    },
+    {
+      "id": 10,
+      "x": -13.937735669213211,
+      "y": 0.8115568161010742,
+      "z": -19.888476816667488,
+      "yaw": 4.884076366392998,
+      "radius": 0.6581734565177829,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_010.obj"
+    },
+    {
+      "id": 11,
+      "x": 20.154970163397177,
+      "y": -0.15751145550786874,
+      "z": 6.791371498829676,
+      "yaw": 5.020114612021982,
+      "radius": 0.5005325376465446,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_011.obj"
+    },
+    {
+      "id": 12,
+      "x": 3.932531409189359,
+      "y": 0.5363885931610904,
+      "z": -2.848585650060638,
+      "yaw": 0.13420360172572443,
+      "radius": 0.3851733305421705,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_012.obj"
+    },
+    {
+      "id": 13,
+      "x": -3.4776300894573033,
+      "y": 0.530274739265837,
+      "z": -9.751792155423752,
+      "yaw": 3.861953670837465,
+      "radius": 0.6529538928852459,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_013.obj"
+    },
+    {
+      "id": 14,
+      "x": 11.238033526765982,
+      "y": 0.04986047190417537,
+      "z": 16.51051149536233,
+      "yaw": 0.6721279603189143,
+      "radius": 0.5126222267340385,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_014.obj"
+    },
+    {
+      "id": 15,
+      "x": 3.3608810802012954,
+      "y": 0.8609885024329238,
+      "z": -20.312520338097364,
+      "yaw": 2.748623323859477,
+      "radius": 0.445828035054857,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_015.obj"
+    },
+    {
+      "id": 16,
+      "x": -5.719248415186396,
+      "y": 0.32002389430999756,
+      "z": -12.112881477111468,
+      "yaw": 6.131037225098457,
+      "radius": 0.5401519504968482,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_016.obj"
+    },
+    {
+      "id": 17,
+      "x": -5.258752775605647,
+      "y": 0.6831744623155873,
+      "z": -19.20705013249909,
+      "yaw": 4.766759068001178,
+      "radius": 0.3605760537292646,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_017.obj"
+    },
+    {
+      "id": 18,
+      "x": 12.345448663484568,
+      "y": 0.05535244941711426,
+      "z": 4.9812061136251415,
+      "yaw": 2.9495012986836557,
+      "radius": 0.29122431352688416,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_018.obj"
+    },
+    {
+      "id": 19,
+      "x": 16.585165677500758,
+      "y": 0.29378038670310647,
+      "z": -8.705367913793266,
+      "yaw": 3.621137134643513,
+      "radius": 0.2984503725313318,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_019.obj"
+    },
+    {
+      "id": 20,
+      "x": -7.876692775939045,
+      "y": -0.09588849544525146,
+      "z": -3.8087784632877053,
+      "yaw": 2.5070611991351033,
+      "radius": 0.6822037654470352,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_020.obj"
+    },
+    {
+      "id": 21,
+      "x": -18.5015273187244,
+      "y": -0.45535944594274114,
+      "z": 19.863015186972508,
+      "yaw": 5.9021926616665885,
+      "radius": 0.3823826154877192,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_021.obj"
+    },
+    {
+      "id": 22,
+      "x": 20.394692220805926,
+      "y": -0.6252316236495972,
+      "z": 22.067442865837,
+      "yaw": 0.6621650556227041,
+      "radius": 0.3813259839000651,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_022.obj"
+    },
+    {
+      "id": 23,
+      "x": 12.169576112733246,
+      "y": 1.6055715084075928,
+      "z": -18.405397010262398,
+      "yaw": 1.6353093309167634,
+      "radius": 0.4577239605364894,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_023.obj"
+    },
+    {
+      "id": 24,
+      "x": 8.694502180286214,
+      "y": 3.477177381515503,
+      "z": -16.222667034874902,
+      "yaw": 3.0933977822631733,
+      "radius": 0.5261250920028953,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_024.obj"
+    },
+    {
+      "id": 25,
+      "x": -4.937921525415003,
+      "y": -0.008029469941835548,
+      "z": 4.568103397467176,
+      "yaw": 4.908464539843196,
+      "radius": 0.6418361828825645,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_025.obj"
+    },
+    {
+      "id": 26,
+      "x": -14.5877242021113,
+      "y": 0.49216415536602165,
+      "z": -14.320826793440423,
+      "yaw": 2.8437191680171954,
+      "radius": 0.4038708118465448,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_026.obj"
+    },
+    {
+      "id": 27,
+      "x": -12.252857112686977,
+      "y": 0.2822136878967285,
+      "z": 6.5350749048717205,
+      "yaw": 4.389713204531518,
+      "radius": 0.31895720378549874,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_027.obj"
+    },
+    {
+      "id": 28,
+      "x": 13.56210369870394,
+      "y": 2.380681037902832,
+      "z": -13.494668090749416,
+      "yaw": 3.2161446054436946,
+      "radius": 0.39994429766709316,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_028.obj"
+    },
+    {
+      "id": 29,
+      "x": 7.229659471197223,
+      "y": 0.04171015331656716,
+      "z": 5.837416000917102,
+      "yaw": 3.959654537823842,
+      "radius": 0.5901118569253891,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_029.obj"
+    },
+    {
+      "id": 30,
+      "x": 1.7316165308789522,
+      "y": 0.18768811225891113,
+      "z": 17.871117269465916,
+      "yaw": 4.253195342350514,
+      "radius": 0.6963020276773781,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_030.obj"
+    },
+    {
+      "id": 31,
+      "x": 15.281119499010227,
+      "y": 0.2061817740697378,
+      "z": -3.7398290977779816,
+      "yaw": 1.689024470272321,
+      "radius": 0.698027528691537,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_031.obj"
+    },
+    {
+      "id": 32,
+      "x": 22.248905913763387,
+      "y": -0.6063265204429626,
+      "z": -7.356584057703314,
+      "yaw": 0.31747577904595037,
+      "radius": 0.331463387814814,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_032.obj"
+    },
+    {
+      "id": 33,
+      "x": -10.847671160869082,
+      "y": -0.0818836222757024,
+      "z": -7.7174908512335065,
+      "yaw": 0.8237517308728872,
+      "radius": 0.38751660918818,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_033.obj"
+    },
+    {
+      "id": 34,
+      "x": -7.7325650251315174,
+      "y": -0.07698345184326172,
+      "z": 11.125299338714218,
+      "yaw": 3.1778392325427745,
+      "radius": 0.5176132583609485,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_034.obj"
+    },
+    {
+      "id": 35,
+      "x": 8.759970398663953,
+      "y": -0.3227498531341553,
+      "z": 8.885077531172701,
+      "yaw": 0.5778557936689639,
+      "radius": 0.4141021868662006,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_035.obj"
+    },
+    {
+      "id": 36,
+      "x": -10.52075155790392,
+      "y": 0.0026475755650914477,
+      "z": 8.106466860820351,
+      "yaw": 0.42620489082716406,
+      "radius": 0.5603315695086132,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_036.obj"
+    },
+    {
+      "id": 37,
+      "x": 11.713001821417688,
+      "y": 3.0423595905303955,
+      "z": -12.326580412651369,
+      "yaw": 5.435250424667266,
+      "radius": 0.5136697681351255,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_037.obj"
+    },
+    {
+      "id": 38,
+      "x": 10.750209890169312,
+      "y": 0.017542123794555664,
+      "z": 4.954971625574146,
+      "yaw": 2.594141364606027,
+      "radius": 0.6617200540345797,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_038.obj"
+    },
+    {
+      "id": 39,
+      "x": 17.88434755717039,
+      "y": 0.074257493019104,
+      "z": -5.469506680532099,
+      "yaw": 4.146268437193212,
+      "radius": 0.25502913855553766,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_039.obj"
+    },
+    {
+      "id": 40,
+      "x": 19.908847451913026,
+      "y": -0.1526038646697998,
+      "z": -2.9383928127270273,
+      "yaw": 1.4331312503831344,
+      "radius": 0.3274858461987201,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_040.obj"
+    },
+    {
+      "id": 41,
+      "x": -7.793951322036074,
+      "y": -0.29128909556532817,
+      "z": 19.96336908760956,
+      "yaw": 0.2736264035821967,
+      "radius": 0.6660989765468175,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_041.obj"
+    },
+    {
+      "id": 42,
+      "x": 5.270846149471083,
+      "y": 0.074257493019104,
+      "z": 1.3591927613060548,
+      "yaw": 5.710429147118519,
+      "radius": 0.2688133850247605,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_042.obj"
+    },
+    {
+      "id": 43,
+      "x": 10.295072356632872,
+      "y": 0.5468852519989014,
+      "z": -3.805101935971809,
+      "yaw": 3.3506767103321557,
+      "radius": 0.6982755532011997,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_043.obj"
+    },
+    {
+      "id": 44,
+      "x": -15.771552217127446,
+      "y": 0.868272066116333,
+      "z": -1.9922056616496349,
+      "yaw": 0.7765415103477127,
+      "radius": 0.6086786729999063,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_044.obj"
+    },
+    {
+      "id": 45,
+      "x": 17.95876977719482,
+      "y": 0.20659327507019043,
+      "z": -0.4225615881369791,
+      "yaw": 2.5371233408471583,
+      "radius": 0.6855924136474811,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_045.obj"
+    },
+    {
+      "id": 46,
+      "x": 9.581902602498857,
+      "y": -0.11479365825653076,
+      "z": 20.28054889749987,
+      "yaw": 0.22850717745350002,
+      "radius": 0.5733326710429916,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_046.obj"
+    },
+    {
+      "id": 47,
+      "x": 0.7484578560421937,
+      "y": 0.3578341007232666,
+      "z": -6.863985933934337,
+      "yaw": 1.8626394625810698,
+      "radius": 0.34584117281707344,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_047.obj"
+    },
+    {
+      "id": 48,
+      "x": 12.688105023994975,
+      "y": 0.6981260776519775,
+      "z": -21.75801489545032,
+      "yaw": 5.857920321772159,
+      "radius": 0.6089017810049131,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_048.obj"
+    },
+    {
+      "id": 49,
+      "x": 6.710791399879479,
+      "y": 2.1335858088271564,
+      "z": -13.383123110008794,
+      "yaw": 1.484570496447898,
+      "radius": 0.5011650841224851,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_049.obj"
+    },
+    {
+      "id": 50,
+      "x": -0.9156883177987751,
+      "y": 0.26330864429473877,
+      "z": -1.2149063266120876,
+      "yaw": 4.756459955985481,
+      "radius": 0.5670869464320059,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_050.obj"
+    },
+    {
+      "id": 51,
+      "x": 6.177827288251521,
+      "y": 0.06849216689023208,
+      "z": 2.3740385676317466,
+      "yaw": 1.8456509225484494,
+      "radius": 0.5138590200615349,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_051.obj"
+    },
+    {
+      "id": 52,
+      "x": 21.265858014972643,
+      "y": -0.42807062248451555,
+      "z": -10.3112604357238,
+      "yaw": 4.9855084601179005,
+      "radius": 0.2597236041994802,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_052.obj"
+    },
+    {
+      "id": 53,
+      "x": 2.702180087838304,
+      "y": -0.039173245429992676,
+      "z": 19.37997153505779,
+      "yaw": 2.4706467738574633,
+      "radius": 0.49008107700883746,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_053.obj"
+    },
+    {
+      "id": 54,
+      "x": -15.57044691012641,
+      "y": 1.3787102699279785,
+      "z": -16.860303580155897,
+      "yaw": 3.5020215658361846,
+      "radius": 0.6229049605036479,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_054.obj"
+    },
+    {
+      "id": 55,
+      "x": -17.358960525286772,
+      "y": -0.2471294403076172,
+      "z": 9.842618992218114,
+      "yaw": 0.4141103704018463,
+      "radius": 0.2880774843472826,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_055.obj"
+    },
+    {
+      "id": 56,
+      "x": 1.4126927504110611,
+      "y": 0.4766471264570241,
+      "z": -4.018343053252774,
+      "yaw": 2.135860223527789,
+      "radius": 0.6939307428763202,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_056.obj"
+    },
+    {
+      "id": 57,
+      "x": -11.009701992770214,
+      "y": -0.28380588599059314,
+      "z": -1.7698983725918396,
+      "yaw": 2.9817225030971684,
+      "radius": 0.4776193475362024,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_057.obj"
+    },
+    {
+      "id": 58,
+      "x": 14.298498135952475,
+      "y": 0.11081022523963288,
+      "z": 4.5731434641245094,
+      "yaw": 3.818840644971322,
+      "radius": 0.5946998409925303,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_058.obj"
+    },
+    {
+      "id": 59,
+      "x": -16.95058921761202,
+      "y": -0.1526038646697998,
+      "z": 2.2807014381262114,
+      "yaw": 1.6089739300713257,
+      "radius": 0.6523716616444151,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_059.obj"
+    },
+    {
+      "id": 60,
+      "x": -19.543561012756744,
+      "y": 0.05535244941711426,
+      "z": -10.639240044443953,
+      "yaw": 3.8425653382807288,
+      "radius": 0.48146696481012274,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_060.obj"
+    },
+    {
+      "id": 61,
+      "x": 9.194407043289594,
+      "y": 1.8750076105685751,
+      "z": -9.691979674654483,
+      "yaw": 2.6489503031555395,
+      "radius": 0.36804529920616136,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_061.obj"
+    },
+    {
+      "id": 62,
+      "x": -20.185422460444673,
+      "y": -0.3605600595474243,
+      "z": 19.09424013685525,
+      "yaw": 1.7002444071747125,
+      "radius": 0.492050011960986,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_062.obj"
+    },
+    {
+      "id": 63,
+      "x": 8.360483926192135,
+      "y": 0.17284057863168262,
+      "z": -1.0970309173776585,
+      "yaw": 4.875970109419179,
+      "radius": 0.5508002553006965,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_063.obj"
+    },
+    {
+      "id": 64,
+      "x": 14.546354191015684,
+      "y": 1.7946226596832275,
+      "z": -15.62944579082721,
+      "yaw": 1.860052731556861,
+      "radius": 0.6131562830007443,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_064.obj"
+    },
+    {
+      "id": 65,
+      "x": 10.890215730386842,
+      "y": 0.5090750455856323,
+      "z": 7.790618397019561,
+      "yaw": 4.926638751142602,
+      "radius": 0.646215378526415,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_065.obj"
+    },
+    {
+      "id": 66,
+      "x": -21.419342594871807,
+      "y": -0.5118009448051453,
+      "z": 17.775086438792762,
+      "yaw": 0.9386986094403955,
+      "radius": 0.3502103674773873,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_066.obj"
+    },
+    {
+      "id": 67,
+      "x": 0.4274026834032121,
+      "y": 0.4712648391723633,
+      "z": 11.409532802489526,
+      "yaw": 3.7744720641105,
+      "radius": 0.3075675381725029,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_067.obj"
+    },
+    {
+      "id": 68,
+      "x": -2.730326542823363,
+      "y": 0.3767392635345459,
+      "z": -6.827820523283984,
+      "yaw": 5.122002484743261,
+      "radius": 0.45165454911915265,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_068.obj"
+    },
+    {
+      "id": 69,
+      "x": -20.813870648017204,
+      "y": -0.37946516275405884,
+      "z": 14.00802176898025,
+      "yaw": 4.928250837780489,
+      "radius": 0.48524174993852986,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_069.obj"
+    },
+    {
+      "id": 70,
+      "x": -18.180416492631252,
+      "y": 0.1498779058456421,
+      "z": -7.111029690742665,
+      "yaw": 2.913927916348097,
+      "radius": 0.328549504611274,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_070.obj"
+    },
+    {
+      "id": 71,
+      "x": -12.33971261096132,
+      "y": 0.562712096437499,
+      "z": 14.190477799131138,
+      "yaw": 5.334315071609056,
+      "radius": 0.5667469798509484,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_071.obj"
+    },
+    {
+      "id": 72,
+      "x": 4.29427162080977,
+      "y": 1.1162276972205438,
+      "z": -9.261849253225455,
+      "yaw": 0.7875917413365316,
+      "radius": 0.2812807072752397,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_072.obj"
+    },
+    {
+      "id": 73,
+      "x": 12.877850005621465,
+      "y": 0.20659327507019043,
+      "z": 14.313592059966265,
+      "yaw": 1.514480886994409,
+      "radius": 0.6084401413702067,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_073.obj"
+    },
+    {
+      "id": 74,
+      "x": -3.8712864832278058,
+      "y": 0.024053944670676196,
+      "z": -15.534267403630729,
+      "yaw": 1.346547189482928,
+      "radius": 0.3715232479343725,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_074.obj"
+    },
+    {
+      "id": 75,
+      "x": 13.408957460084757,
+      "y": 0.6414108276367188,
+      "z": -8.333801729673691,
+      "yaw": 5.730801905687519,
+      "radius": 0.6543702175655073,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_075.obj"
+    },
+    {
+      "id": 76,
+      "x": 14.265697293967389,
+      "y": 0.13097286224365234,
+      "z": 2.025807910147705,
+      "yaw": 2.9835758578707945,
+      "radius": 0.25027260692618347,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_076.obj"
+    },
+    {
+      "id": 77,
+      "x": 6.495407721918475,
+      "y": 1.9080531597137451,
+      "z": -12.031634277822109,
+      "yaw": 0.9950770273571485,
+      "radius": 0.4016344282833173,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_077.obj"
+    },
+    {
+      "id": 78,
+      "x": 9.245221155563957,
+      "y": 1.5330491229099832,
+      "z": -7.961701720667408,
+      "yaw": 1.2307674461566134,
+      "radius": 0.6785548649485365,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_078.obj"
+    },
+    {
+      "id": 79,
+      "x": 8.343169385919474,
+      "y": 1.8742069887734507,
+      "z": -19.899642785879546,
+      "yaw": 5.2520731769971265,
+      "radius": 0.6451178678752467,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_079.obj"
+    },
+    {
+      "id": 80,
+      "x": -18.53941211295096,
+      "y": -0.3416549563407898,
+      "z": 11.56612955487099,
+      "yaw": 0.22836291931307878,
+      "radius": 0.699075906739254,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_080.obj"
+    },
+    {
+      "id": 81,
+      "x": 20.710538460685093,
+      "y": -0.2150966974981323,
+      "z": -20.17492215031784,
+      "yaw": 4.620872545485464,
+      "radius": 0.48543554875859646,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_081.obj"
+    },
+    {
+      "id": 82,
+      "x": -12.377987106241305,
+      "y": -0.13369882106781006,
+      "z": 10.29670306430162,
+      "yaw": 4.726913515070236,
+      "radius": 0.2870015865497314,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_082.obj"
+    },
+    {
+      "id": 83,
+      "x": 22.458602923889803,
+      "y": -0.6426378209275906,
+      "z": 5.533826010942104,
+      "yaw": 1.3884950825942284,
+      "radius": 0.44196767911861534,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_083.obj"
+    },
+    {
+      "id": 84,
+      "x": 20.090888199070307,
+      "y": -0.3416549563407898,
+      "z": 16.737039514547135,
+      "yaw": 1.2470197706000457,
+      "radius": 0.3390953791799438,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_084.obj"
+    },
+    {
+      "id": 85,
+      "x": -14.729898323021144,
+      "y": -0.3751356099616149,
+      "z": 19.735855272389124,
+      "yaw": 4.800356991866392,
+      "radius": 0.485504211030374,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_085.obj"
+    },
+    {
+      "id": 86,
+      "x": -4.322873983077685,
+      "y": 0.15152722281616549,
+      "z": 14.114438175765809,
+      "yaw": 3.504555019880475,
+      "radius": 0.3083291782830692,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_086.obj"
+    },
+    {
+      "id": 87,
+      "x": 17.855799171470615,
+      "y": 0.41454946994781494,
+      "z": -14.647439500447415,
+      "yaw": 2.0511162458455843,
+      "radius": 0.49517419248101036,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_087.obj"
+    },
+    {
+      "id": 88,
+      "x": 19.574289468275946,
+      "y": -0.09588849544525146,
+      "z": -6.444744574090603,
+      "yaw": 2.1996523751001886,
+      "radius": 0.6242843721212419,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_088.obj"
+    },
+    {
+      "id": 89,
+      "x": -5.23462159001809,
+      "y": 0.6603158712387085,
+      "z": -14.005510848032062,
+      "yaw": 1.2829283084504612,
+      "radius": 0.3137920551885372,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_089.obj"
+    },
+    {
+      "id": 90,
+      "x": -7.3681441647023505,
+      "y": -0.039173245429992676,
+      "z": 7.203276093942971,
+      "yaw": 5.584159809368756,
+      "radius": 0.28392524421113297,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_090.obj"
+    },
+    {
+      "id": 91,
+      "x": -3.822246833962115,
+      "y": 0.3578341007232666,
+      "z": 1.634080562260369,
+      "yaw": 6.108359313904385,
+      "radius": 0.42675892162022766,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_091.obj"
+    },
+    {
+      "id": 92,
+      "x": 12.335745153640048,
+      "y": 2.986170616883106,
+      "z": -14.637608487804206,
+      "yaw": 1.0857492590330313,
+      "radius": 0.2634321468676362,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_092.obj"
+    },
+    {
+      "id": 93,
+      "x": 6.384820024272823,
+      "y": 1.3976151943206787,
+      "z": -20.073609106308385,
+      "yaw": 3.1631280417232364,
+      "radius": 0.6068196801530852,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_093.obj"
+    },
+    {
+      "id": 94,
+      "x": 3.911734066589297,
+      "y": 1.2841846942901611,
+      "z": -18.383801142561914,
+      "yaw": 3.7281117431255932,
+      "radius": 0.3969257978985886,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_094.obj"
+    },
+    {
+      "id": 95,
+      "x": 3.4526994587730826,
+      "y": 0.6414108276367188,
+      "z": -4.611488706167336,
+      "yaw": 2.035297760095329,
+      "radius": 0.44805829685622234,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_095.obj"
+    },
+    {
+      "id": 96,
+      "x": 15.084889906996374,
+      "y": 0.43345463275909424,
+      "z": -9.50748791231963,
+      "yaw": 3.8978387206051934,
+      "radius": 0.5184568900724505,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_096.obj"
+    },
+    {
+      "id": 97,
+      "x": 7.00983912108379,
+      "y": 0.490169882774353,
+      "z": 16.706647161365055,
+      "yaw": 5.417116585934063,
+      "radius": 0.3117628574003903,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_097.obj"
+    },
+    {
+      "id": 98,
+      "x": 12.677254152154223,
+      "y": -0.022979217966849246,
+      "z": 20.9866974838493,
+      "yaw": 3.607202140256923,
+      "radius": 0.49071623597601866,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_098.obj"
+    },
+    {
+      "id": 99,
+      "x": 19.029346932878955,
+      "y": 0.1498779058456421,
+      "z": -16.20130936241159,
+      "yaw": 2.10104842176544,
+      "radius": 0.41440057689384313,
+      "mesh_path": "/home/nahar/Desktop/pineapple/marsHabitat/rock_envs/run1/rocks/rock_099.obj"
+    }
+  ]
+}

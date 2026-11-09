@@ -1,0 +1,207 @@
+[
+  {
+    "label": "cbf_visible_0",
+    "frame_file": "cbf_visible_0.png",
+    "pose": {
+      "x": 4.5034367977680105,
+      "y": 2.647978287179344,
+      "z": -15.810449035639309,
+      "yaw_deg": 0.0
+    },
+    "nearest_any_edge_distance_m": 1.5,
+    "nearest_visible_bbox_xyxy": [
+      240,
+      250,
+      400,
+      411
+    ],
+    "frame_wh": [
+      640,
+      480
+    ]
+  },
+  {
+    "label": "cbf_visible_1",
+    "frame_file": "cbf_visible_1.png",
+    "pose": {
+      "x": 14.299696834904715,
+      "y": 0.8055127978191872,
+      "z": 14.564223061779586,
+      "yaw_deg": 0.0
+    },
+    "nearest_any_edge_distance_m": 2.5,
+    "nearest_visible_bbox_xyxy": [
+      266,
+      197,
+      374,
+      305
+    ],
+    "frame_wh": [
+      640,
+      480
+    ]
+  },
+  {
+    "label": "cbf_visible_2",
+    "frame_file": "cbf_visible_2.png",
+    "pose": {
+      "x": 9.924684848826967,
+      "y": 0.560986841994586,
+      "z": 14.194499435073663,
+      "yaw_deg": 0.0
+    },
+    "nearest_any_edge_distance_m": 3.0,
+    "nearest_visible_bbox_xyxy": [
+      274,
+      243,
+      366,
+      336
+    ],
+    "frame_wh": [
+      640,
+      480
+    ]
+  },
+  {
+    "label": "cbf_fallback_0",
+    "frame_file": "cbf_fallback_0.png",
+    "pose": {
+      "x": -9.892541160338693,
+      "y": 0.6087484184071561,
+      "z": 1.3456583023739483,
+      "yaw_deg": 180.0
+    },
+    "nearest_any_edge_distance_m": 2.0,
+    "nearest_visible_bbox_xyxy": null,
+    "frame_wh": [
+      640,
+      480
+    ]
+  },
+  {
+    "label": "cbf_fallback_1",
+    "frame_file": "cbf_fallback_1.png",
+    "pose": {
+      "x": -7.194013743195885,
+      "y": 0.5824696930355697,
+      "z": -4.090832634504713,
+      "yaw_deg": 180.0
+    },
+    "nearest_any_edge_distance_m": 2.5,
+    "nearest_visible_bbox_xyxy": [
+      559,
+      230,
+      640,
+      340
+    ],
+    "frame_wh": [
+      640,
+      480
+    ]
+  },
+  {
+    "label": "exploration_far_0",
+    "frame_file": "exploration_far_0.png",
+    "pose": {
+      "x": -20,
+      "y": 0.5147051787376407,
+      "z": 20,
+      "yaw_deg": -45.0
+    },
+    "nearest_any_edge_distance_m": 22.94497594060117,
+    "nearest_visible_bbox_xyxy": [
+      199,
+      237,
+      215,
+      253
+    ],
+    "frame_wh": [
+      640,
+      480
+    ]
+  },
+  {
+    "label": "exploration_far_1",
+    "frame_file": "exploration_far_1.png",
+    "pose": {
+      "x": -15,
+      "y": 0.4948094677925111,
+      "z": 20,
+      "yaw_deg": -36.86989764584402
+    },
+    "nearest_any_edge_distance_m": 21.26217609658452,
+    "nearest_visible_bbox_xyxy": [
+      174,
+      237,
+      191,
+      254
+    ],
+    "frame_wh": [
+      640,
+      480
+    ]
+  },
+  {
+    "label": "exploration_far_2",
+    "frame_file": "exploration_far_2.png",
+    "pose": {
+      "x": -10,
+      "y": 0.526812093257904,
+      "z": 20,
+      "yaw_deg": -26.56505117707799
+    },
+    "nearest_any_edge_distance_m": 20.654614628069726,
+    "nearest_visible_bbox_xyxy": [
+      153,
+      237,
+      171,
+      255
+    ],
+    "frame_wh": [
+      640,
+      480
+    ]
+  },
+  {
+    "label": "uncertainty_0",
+    "frame_file": "uncertainty_0.png",
+    "pose": {
+      "x": -20,
+      "y": 0.5580438470840455,
+      "z": 15,
+      "yaw_deg": -53.13010235415598
+    },
+    "nearest_any_edge_distance_m": 18.555799114157015,
+    "nearest_visible_bbox_xyxy": [
+      187,
+      237,
+      206,
+      256
+    ],
+    "frame_wh": [
+      640,
+      480
+    ]
+  },
+  {
+    "label": "uncertainty_1",
+    "frame_file": "uncertainty_1.png",
+    "pose": {
+      "x": -20,
+      "y": 1.0872405242919925,
+      "z": -20,
+      "yaw_deg": -135.0
+    },
+    "nearest_any_edge_distance_m": 17.683505879775343,
+    "nearest_visible_bbox_xyxy": [
+      312,
+      245,
+      331,
+      263
+    ],
+    "frame_wh": [
+      640,
+      480
+    ]
+  }
+]

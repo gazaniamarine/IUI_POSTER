@@ -1,0 +1,10 @@
+# GPU server (mapping). GStreamer + PyGObject (gi) come from the system / conda, not pip:
+#   conda install -c conda-forge pygobject gstreamer gst-plugins-base gst-plugins-good
+numpy
+opencv-python
+pyyaml
+scipy
+torch
+transformers
+pyzmq
+# Robot side (rover_bridge/rover_state_bridge.py): ROS 2 (rclpy, nav_msgs, sensor_msgs) + pyzmq

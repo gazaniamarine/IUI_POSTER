@@ -1,0 +1,13 @@
+torch
+torchvision
+torchaudio
+opencv-python
+tqdm
+matplotlib
+numpy
+hydra-core
+omegaconf
+scikit-learn
+seaborn
+peft  # LoRA adapters, used by sam_vla.perception.finetune_sam2_lora
+rasterio  # GeoTIFF heightmap loading, used by sam_vla.env.terrain

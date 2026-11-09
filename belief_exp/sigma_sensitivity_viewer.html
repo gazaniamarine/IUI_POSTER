@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>sigma_min_sweep viewer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root {
+  color-scheme: light;
+  --surface-1:      #fcfcfb;
+  --page:           #f9f9f7;
+  --text-primary:   #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted:     #898781;
+  --grid:           #e1e0d9;
+  --axis:           #c3c2b7;
+  --series-1:       #2a78d6;
+  --border:         rgba(11,11,11,0.10);
+  --infeasible-fill: rgba(137,135,129,0.14);
+  --infeasible-line: #898781;
+  --accent-bg:      #eef4fc;
+  --good:           #0ca30c;
+  --critical:       #d03b3b;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1:      #1a1a19;
+    --page:           #0d0d0d;
+    --text-primary:   #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted:     #898781;
+    --grid:           #2c2c2a;
+    --axis:           #383835;
+    --series-1:       #3987e5;
+    --border:         rgba(255,255,255,0.10);
+    --infeasible-fill: rgba(137,135,129,0.18);
+    --infeasible-line: #6f6d67;
+    --accent-bg:      #16233a;
+    --good:           #0ca30c;
+    --critical:       #e66767;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1:      #1a1a19;
+  --page:           #0d0d0d;
+  --text-primary:   #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted:     #898781;
+  --grid:           #2c2c2a;
+  --axis:           #383835;
+  --series-1:       #3987e5;
+  --border:         rgba(255,255,255,0.10);
+  --infeasible-fill: rgba(137,135,129,0.18);
+  --infeasible-line: #6f6d67;
+  --accent-bg:      #16233a;
+  --good:           #0ca30c;
+  --critical:       #e66767;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.wrap { max-width: 1200px; margin: 0 auto; padding: 28px 20px 60px; }
+h1 { font-size: 19px; font-weight: 650; margin: 0 0 4px; letter-spacing: -0.01em; }
+.subtitle { color: var(--text-secondary); font-size: 13px; margin: 0 0 20px; max-width: 720px; line-height: 1.5; }
+code { background: var(--accent-bg); padding: 1px 5px; border-radius: 4px; font-size: 0.92em; }
+
+.toolbar {
+  display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  padding: 14px 16px; margin-bottom: 18px;
+}
+.dropzone {
+  flex: 1 1 260px; min-width: 220px;
+  border: 1.5px dashed var(--axis); border-radius: 10px;
+  padding: 14px 16px; text-align: center; font-size: 12.5px; color: var(--text-secondary);
+  transition: background 0.12s, border-color 0.12s;
+  cursor: pointer;
+}
+.dropzone.drag-over { background: var(--accent-bg); border-color: var(--series-1); color: var(--text-primary); }
+.dropzone b { color: var(--text-primary); }
+
+.btn {
+  appearance: none; border: 1px solid var(--border); background: var(--surface-1);
+  color: var(--text-primary); font-size: 12.5px; font-weight: 550;
+  padding: 8px 14px; border-radius: 8px; cursor: pointer; white-space: nowrap;
+}
+.btn:hover { background: var(--accent-bg); }
+.btn.primary { background: var(--series-1); border-color: var(--series-1); color: #fff; }
+
+.segmented { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.segmented button {
+  appearance: none; border: none; background: var(--surface-1); color: var(--text-secondary);
+  font-size: 12.5px; font-weight: 550; padding: 8px 12px; cursor: pointer;
+}
+.segmented button.active { background: var(--series-1); color: #fff; }
+.segmented button + button { border-left: 1px solid var(--border); }
+
+.search {
+  flex: 1 1 180px; min-width: 140px;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--surface-1);
+  color: var(--text-primary); font-size: 12.5px; padding: 8px 10px;
+}
+.search:focus { outline: 2px solid var(--series-1); outline-offset: -1px; }
+
+.status-line {
+  font-size: 12px; color: var(--text-muted); margin: 0 0 16px;
+  display: flex; gap: 14px; flex-wrap: wrap;
+}
+.status-line .n { color: var(--text-primary); font-weight: 650; }
+
+.filechips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+.chip {
+  font-size: 11.5px; padding: 4px 9px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--surface-1); color: var(--text-secondary);
+  display: flex; align-items: center; gap: 6px;
+}
+.chip .x { cursor: pointer; color: var(--text-muted); font-weight: 700; }
+.chip .x:hover { color: var(--critical); }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+
+.card {
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+  padding: 16px 16px 8px;
+}
+.card h2 { font-size: 13px; font-weight: 650; margin: 0 0 2px; }
+.card h2 .file { color: var(--text-muted); font-weight: 500; }
+.card .held { font-size: 10.5px; color: var(--text-secondary); margin: 0 0 10px; line-height: 1.5;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+
+svg { display: block; overflow: visible; }
+.axis-label { fill: var(--text-muted); font-size: 10px; }
+.axis-line { stroke: var(--axis); stroke-width: 1; }
+.gridline { stroke: var(--grid); stroke-width: 1; }
+.tick-label { fill: var(--text-muted); font-size: 10px; }
+.line-path { fill: none; stroke: var(--series-1); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.dot { fill: var(--series-1); stroke: var(--surface-1); stroke-width: 1.5; }
+.dot.not-viable { fill: var(--critical); }
+.dot-hit { fill: transparent; cursor: pointer; }
+.infeasible-rect { fill: var(--infeasible-fill); }
+.infeasible-label { fill: var(--text-secondary); font-size: 10px; font-style: italic; }
+.crosshair { stroke: var(--axis); stroke-width: 1; stroke-dasharray: 2 2; pointer-events: none; opacity: 0; }
+
+.tooltip {
+  position: absolute; pointer-events: none;
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px;
+  padding: 6px 9px; font-size: 11.5px; line-height: 1.5; color: var(--text-primary);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.14); opacity: 0; transition: opacity 0.08s ease;
+  white-space: nowrap; z-index: 10;
+}
+.tooltip .t-label { color: var(--text-secondary); }
+.tooltip .t-value { font-weight: 650; font-variant-numeric: tabular-nums; }
+.tooltip .t-bad { color: var(--critical); font-weight: 650; }
+
+.chart-holder { position: relative; }
+
+.empty {
+  text-align: center; padding: 60px 20px; color: var(--text-muted); font-size: 13px;
+  border: 1.5px dashed var(--border); border-radius: 12px;
+}
+.empty b { color: var(--text-secondary); }
+
+.skip-note {
+  font-size: 11.5px; color: var(--text-muted); margin: -8px 0 16px;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>sigma_min_sweep viewer</h1>
+  <p class="subtitle">
+    Drop a <code>results/</code> folder (or pick one) below. Any file matching
+    <code>*_summary.csv</code> from <code>sigma_min_sweep.py</code> is parsed client-side —
+    nothing leaves your machine — and grouped into one chart per <code>sweep_param</code>
+    per file, same shape as the sensitivity charts you've already seen. Re-open this file
+    any time you have new runs; nothing needs to be regenerated by hand.
+  </p>
+
+  <div class="toolbar">
+    <div id="dropzone" class="dropzone">
+      Drag <b>results/</b> folder (or CSV files) here
+    </div>
+    <input type="file" id="folderInput" webkitdirectory directory multiple style="display:none">
+    <input type="file" id="filesInput" multiple accept=".csv" style="display:none">
+    <button class="btn primary" id="pickFolderBtn">Choose folder…</button>
+    <button class="btn" id="pickFilesBtn">Choose files…</button>
+    <button class="btn" id="clearBtn">Clear</button>
+    <div class="segmented" id="metricToggle">
+      <button data-metric="min_sigma_visible" class="active">sigma_visible</button>
+      <button data-metric="min_odom_noise">odom_noise</button>
+    </div>
+    <input type="text" class="search" id="searchBox" placeholder="filter by file / param…">
+  </div>
+
+  <div id="statusLine" class="status-line"></div>
+  <div id="fileChips" class="filechips"></div>
+  <div id="output"></div>
+</div>
+
+<script>
+const state = {
+  files: new Map(),   // filename -> { header, rows }
+  metric: "min_sigma_visible",
+  filterText: "",
+};
+
+// ---------- CSV parsing ----------
+function parseCSV(text) {
+  const lines = text.split(/\r?\n/).filter(l => l.length > 0);
+  if (lines.length === 0) return { header: [], rows: [] };
+  const header = lines[0].split(",").map(s => s.trim());
+  const rows = lines.slice(1).map(line => {
+    const cells = line.split(",");
+    const row = {};
+    header.forEach((h, i) => { row[h] = (cells[i] !== undefined ? cells[i].trim() : ""); });
+    return row;
+  });
+  return { header, rows };
+}
+
+function toNum(v) {
+  if (v === undefined || v === null || v === "") return NaN;
+  const n = Number(v);
+  return n;
+}
+
+function isViableRow(row) {
+  return String(row.found_viable).trim().toLowerCase() === "true";
+}
+
+function fmtNum(v) {
+  if (!isFinite(v)) return "—";
+  if (Math.abs(v) >= 1 && Number.isInteger(v)) return String(v);
+  const p = Number(v.toPrecision(3));
+  return String(p);
+}
+
+// ---------- file loading ----------
+async function handleFiles(fileList) {
+  const candidates = Array.from(fileList).filter(f =>
+    /_summary\.csv$/i.test(f.name || f.webkitRelativePath || "")
+  );
+  let skipped = 0;
+  for (const f of candidates) {
+    try {
+      const text = await f.text();
+      const parsed = parseCSV(text);
+      const required = ["sweep_param", "sweep_value", "found_viable"];
+      const hasRequired = required.every(c => parsed.header.includes(c));
+      if (!hasRequired) { skipped++; continue; }
+      const name = f.webkitRelativePath || f.name;
+      state.files.set(name, parsed);
+    } catch (e) {
+      skipped++;
+    }
+  }
+  render();
+  if (skipped > 0) {
+    const note = document.createElement("div");
+    note.className = "skip-note";
+    note.textContent = `skipped ${skipped} file(s) — not a sigma_min_sweep summary CSV`;
+    document.getElementById("output").prepend(note);
+  }
+}
+
+// drag & drop, incl. nested directories
+async function entriesFromDataTransfer(items) {
+  const files = [];
+  async function walk(entry) {
+    if (entry.isFile) {
+      await new Promise(res => entry.file(f => { files.push(f); res(); }));
+    } else if (entry.isDirectory) {
+      const reader = entry.createReader();
+      let batch;
+      do {
+        batch = await new Promise(res => reader.readEntries(res));
+        for (const e of batch) await walk(e);
+      } while (batch.length > 0);
+    }
+  }
+  const roots = [];
+  for (const item of items) {
+    const entry = item.webkitGetAsEntry ? item.webkitGetAsEntry() : null;
+    if (entry) roots.push(walk(entry));
+  }
+  await Promise.all(roots);
+  return files;
+}
+
+const dropzone = document.getElementById("dropzone");
+dropzone.addEventListener("dragover", e => { e.preventDefault(); dropzone.classList.add("drag-over"); });
+dropzone.addEventListener("dragleave", () => dropzone.classList.remove("drag-over"));
+dropzone.addEventListener("drop", async e => {
+  e.preventDefault();
+  dropzone.classList.remove("drag-over");
+  if (e.dataTransfer.items && e.dataTransfer.items[0] && e.dataTransfer.items[0].webkitGetAsEntry) {
+    const files = await entriesFromDataTransfer(Array.from(e.dataTransfer.items));
+    handleFiles(files);
+  } else {
+    handleFiles(e.dataTransfer.files);
+  }
+});
+dropzone.addEventListener("click", () => document.getElementById("filesInput").click());
+
+document.getElementById("pickFolderBtn").addEventListener("click", () => document.getElementById("folderInput").click());
+document.getElementById("pickFilesBtn").addEventListener("click", () => document.getElementById("filesInput").click());
+document.getElementById("folderInput").addEventListener("change", e => handleFiles(e.target.files));
+document.getElementById("filesInput").addEventListener("change", e => handleFiles(e.target.files));
+document.getElementById("clearBtn").addEventListener("click", () => { state.files.clear(); render(); });
+
+document.getElementById("metricToggle").addEventListener("click", e => {
+  const btn = e.target.closest("button[data-metric]");
+  if (!btn) return;
+  state.metric = btn.dataset.metric;
+  document.querySelectorAll("#metricToggle button").forEach(b => b.classList.toggle("active", b === btn));
+  render();
+});
+
+document.getElementById("searchBox").addEventListener("input", e => {
+  state.filterText = e.target.value.trim().toLowerCase();
+  render();
+});
+
+// ---------- panel building ----------
+function otherParamCols(header) {
+  const svIdx = header.indexOf("sweep_value");
+  const minIdx = header.findIndex(h => h.startsWith("min_"));
+  if (svIdx === -1 || minIdx === -1 || minIdx <= svIdx) return [];
+  return header.slice(svIdx + 1, minIdx);
+}
+
+function buildPanels() {
+  const panels = [];
+  for (const [fileName, { header, rows }] of state.files.entries()) {
+    const otherCols = otherParamCols(header);
+    const byParam = new Map();
+    for (const row of rows) {
+      const p = row.sweep_param;
+      if (!p || p === "baseline") continue;
+      if (!byParam.has(p)) byParam.set(p, []);
+      byParam.get(p).push(row);
+    }
+    for (const [param, groupRows] of byParam.entries()) {
+      const heldStr = otherCols
+        .filter(c => c !== param)
+        .map(c => `${c}=${fmtNum(toNum(groupRows[0][c])) !== "—" ? fmtNum(toNum(groupRows[0][c])) : groupRows[0][c]}`)
+        .join("  ");
+      panels.push({ fileName, param, rows: groupRows, heldStr });
+    }
+  }
+  return panels;
+}
+
+// ---------- rendering a single chart ----------
+function renderChart(container, points, xLabel, yLabel) {
+  const isCategorical = points.some(p => isNaN(p.xNum));
+  const W = 380, H = 230;
+  const M = { top: 12, right: 14, bottom: 32, left: 46 };
+  const plotW = W - M.left - M.right;
+  const plotH = H - M.top - M.bottom;
+
+  const svgNS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgNS, "svg");
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.setAttribute("width", "100%");
+  svg.setAttribute("height", H);
+
+  let xOf, xTicks, xMin, xMax;
+  if (isCategorical) {
+    const n = points.length;
+    xOf = i => M.left + (n === 1 ? plotW / 2 : (i / (n - 1)) * plotW);
+    xTicks = points.map((p, i) => ({ x: xOf(i), label: p.xRaw }));
+    xMin = 0; xMax = n - 1;
+  } else {
+    xMin = Math.min(...points.map(p => p.xNum));
+    xMax = Math.max(...points.map(p => p.xNum));
+    if (xMin === xMax) { xMin -= 1; xMax += 1; }
+    xOf = v => M.left + ((v - xMin) / (xMax - xMin)) * plotW;
+    const step = (xMax - xMin) / 4;
+    xTicks = [0, 1, 2, 3, 4].map(i => {
+      const v = xMin + i * step;
+      return { x: xOf(v), label: fmtNum(v) };
+    });
+  }
+
+  const finiteY = points.map(p => p.y).filter(y => isFinite(y));
+  let yMax = finiteY.length ? Math.max(...finiteY) : 1;
+  yMax = yMax > 0 ? yMax * 1.2 : 1;
+  const yOf = v => M.top + plotH - (v / yMax) * plotH;
+
+  // gridlines
+  const yStep = yMax / 4;
+  for (let i = 0; i <= 4; i++) {
+    const v = i * yStep;
+    const y = yOf(v);
+    const gl = document.createElementNS(svgNS, "line");
+    gl.setAttribute("x1", M.left); gl.setAttribute("x2", W - M.right);
+    gl.setAttribute("y1", y); gl.setAttribute("y2", y);
+    gl.setAttribute("class", "gridline");
+    svg.appendChild(gl);
+    const tl = document.createElementNS(svgNS, "text");
+    tl.setAttribute("x", M.left - 7); tl.setAttribute("y", y + 3.5);
+    tl.setAttribute("text-anchor", "end");
+    tl.setAttribute("class", "tick-label");
+    tl.textContent = fmtNum(v);
+    svg.appendChild(tl);
+  }
+
+  // infeasible shading (contiguous non-viable runs, numeric x only)
+  if (!isCategorical) {
+    let i = 0;
+    while (i < points.length) {
+      if (points[i].viable) { i++; continue; }
+      let j = i;
+      while (j < points.length && !points[j].viable) j++;
+      const startX = i === 0 ? xMin : (points[i - 1].xNum + points[i].xNum) / 2;
+      const endX = j === points.length ? xMax : (points[j - 1].xNum + points[j].xNum) / 2;
+      const rx0 = xOf(startX), rx1 = xOf(endX);
+      const rect = document.createElementNS(svgNS, "rect");
+      rect.setAttribute("x", rx0); rect.setAttribute("y", M.top);
+      rect.setAttribute("width", Math.max(0, rx1 - rx0)); rect.setAttribute("height", plotH);
+      rect.setAttribute("class", "infeasible-rect");
+      svg.appendChild(rect);
+      if (rx1 - rx0 > 40) {
+        const lbl = document.createElementNS(svgNS, "text");
+        lbl.setAttribute("x", (rx0 + rx1) / 2); lbl.setAttribute("y", M.top + 13);
+        lbl.setAttribute("text-anchor", "middle");
+        lbl.setAttribute("class", "infeasible-label");
+        lbl.textContent = "no viable pair";
+        svg.appendChild(lbl);
+      }
+      i = j;
+    }
+  }
+
+  // x axis
+  const axisLine = document.createElementNS(svgNS, "line");
+  axisLine.setAttribute("x1", M.left); axisLine.setAttribute("x2", W - M.right);
+  axisLine.setAttribute("y1", M.top + plotH); axisLine.setAttribute("y2", M.top + plotH);
+  axisLine.setAttribute("class", "axis-line");
+  svg.appendChild(axisLine);
+
+  xTicks.forEach(t => {
+    const tl = document.createElementNS(svgNS, "text");
+    tl.setAttribute("x", t.x); tl.setAttribute("y", M.top + plotH + 15);
+    tl.setAttribute("text-anchor", "middle");
+    tl.setAttribute("class", "tick-label");
+    tl.textContent = t.label;
+    svg.appendChild(tl);
+  });
+
+  const xAxisLabel = document.createElementNS(svgNS, "text");
+  xAxisLabel.setAttribute("x", M.left + plotW / 2); xAxisLabel.setAttribute("y", H - 3);
+  xAxisLabel.setAttribute("text-anchor", "middle");
+  xAxisLabel.setAttribute("class", "axis-label");
+  xAxisLabel.textContent = xLabel;
+  svg.appendChild(xAxisLabel);
+
+  const yAxisLabel = document.createElementNS(svgNS, "text");
+  yAxisLabel.setAttribute("x", -(M.top + plotH / 2)); yAxisLabel.setAttribute("y", 12);
+  yAxisLabel.setAttribute("text-anchor", "middle");
+  yAxisLabel.setAttribute("transform", "rotate(-90)");
+  yAxisLabel.setAttribute("class", "axis-label");
+  yAxisLabel.textContent = yLabel;
+  svg.appendChild(yAxisLabel);
+
+  // line path — break across non-viable / non-finite runs
+  const xPos = points.map((p, i) => isCategorical ? xOf(i) : xOf(p.xNum));
+  let d = "";
+  let drawing = false;
+  points.forEach((p, i) => {
+    if (isFinite(p.y)) {
+      d += (drawing ? "L" : "M") + ` ${xPos[i]} ${yOf(p.y)} `;
+      drawing = true;
+    } else {
+      drawing = false;
+    }
+  });
+  const path = document.createElementNS(svgNS, "path");
+  path.setAttribute("d", d.trim());
+  path.setAttribute("class", "line-path");
+  svg.appendChild(path);
+
+  const crosshair = document.createElementNS(svgNS, "line");
+  crosshair.setAttribute("y1", M.top); crosshair.setAttribute("y2", M.top + plotH);
+  crosshair.setAttribute("class", "crosshair");
+  svg.appendChild(crosshair);
+
+  const tooltip = document.createElement("div");
+  tooltip.className = "tooltip";
+
+  points.forEach((p, i) => {
+    if (!isFinite(p.y)) return;
+    const cx = xPos[i], cy = yOf(p.y);
+    const dot = document.createElementNS(svgNS, "circle");
+    dot.setAttribute("cx", cx); dot.setAttribute("cy", cy);
+    dot.setAttribute("r", 3.5);
+    dot.setAttribute("class", "dot" + (p.viable ? "" : " not-viable"));
+    svg.appendChild(dot);
+
+    const hit = document.createElementNS(svgNS, "circle");
+    hit.setAttribute("cx", cx); hit.setAttribute("cy", cy);
+    hit.setAttribute("r", 10);
+    hit.setAttribute("class", "dot-hit");
+    hit.addEventListener("mouseenter", () => {
+      crosshair.setAttribute("x1", cx); crosshair.setAttribute("x2", cx);
+      crosshair.style.opacity = 1;
+      tooltip.innerHTML =
+        `<span class="t-label">${xLabel} = ${p.xRaw}</span><br>` +
+        `${yLabel} = <span class="t-value">${fmtNum(p.y)}</span>` +
+        (p.viable ? "" : `<br><span class="t-bad">not viable</span>`);
+      tooltip.style.opacity = 1;
+      tooltip.style.left = (cx + 12) + "px";
+      tooltip.style.top = (cy - 8) + "px";
+    });
+    hit.addEventListener("mouseleave", () => { crosshair.style.opacity = 0; tooltip.style.opacity = 0; });
+    svg.appendChild(hit);
+  });
+
+  container.appendChild(svg);
+  container.appendChild(tooltip);
+}
+
+// ---------- top-level render ----------
+function render() {
+  const output = document.getElementById("output");
+  const statusLine = document.getElementById("statusLine");
+  const fileChips = document.getElementById("fileChips");
+  output.innerHTML = "";
+  fileChips.innerHTML = "";
+
+  if (state.files.size === 0) {
+    output.innerHTML = `<div class="empty">No files loaded yet. Drop <b>results/</b> or pick files/folder above.</div>`;
+    statusLine.textContent = "";
+    return;
+  }
+
+  for (const name of state.files.keys()) {
+    const chip = document.createElement("div");
+    chip.className = "chip";
+    chip.innerHTML = `<span>${name}</span><span class="x" data-name="${name}">×</span>`;
+    chip.querySelector(".x").addEventListener("click", () => { state.files.delete(name); render(); });
+    fileChips.appendChild(chip);
+  }
+
+  let panels = buildPanels();
+  if (state.filterText) {
+    panels = panels.filter(p =>
+      p.fileName.toLowerCase().includes(state.filterText) ||
+      p.param.toLowerCase().includes(state.filterText)
+    );
+  }
+
+  statusLine.innerHTML =
+    `<span><span class="n">${state.files.size}</span> file(s) loaded</span>` +
+    `<span><span class="n">${panels.length}</span> chart(s) shown</span>` +
+    `<span>metric: <span class="n">${state.metric}</span></span>`;
+
+  if (panels.length === 0) {
+    output.innerHTML = `<div class="empty">No panels match "<b>${state.filterText}</b>".</div>`;
+    return;
+  }
+
+  const grid = document.createElement("div");
+  grid.className = "grid";
+  output.appendChild(grid);
+
+  for (const panel of panels) {
+    const card = document.createElement("div");
+    card.className = "card";
+    const h2 = document.createElement("h2");
+    h2.innerHTML = `${panel.param} <span class="file">· ${panel.fileName}</span>`;
+    card.appendChild(h2);
+    if (panel.heldStr) {
+      const held = document.createElement("div");
+      held.className = "held";
+      held.textContent = `held: ${panel.heldStr}`;
+      card.appendChild(held);
+    }
+    const holder = document.createElement("div");
+    holder.className = "chart-holder";
+    card.appendChild(holder);
+    grid.appendChild(card);
+
+    const points = panel.rows
+      .map(row => {
+        const xNum = toNum(row.sweep_value);
+        return {
+          xNum,
+          xRaw: row.sweep_value,
+          y: toNum(row[state.metric]),
+          viable: isViableRow(row),
+        };
+      })
+      .sort((a, b) => (isNaN(a.xNum) || isNaN(b.xNum)) ? 0 : a.xNum - b.xNum);
+
+    renderChart(holder, points, panel.param, state.metric);
+  }
+}
+
+render();
+</script>
+</body>
+</html>
